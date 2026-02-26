@@ -183,6 +183,22 @@
   .lock-btn:hover  { opacity: 0.8; }
   .lock-btn.locked { opacity: 1; }
 
+  .copy-btn {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0.25;
+    transition: opacity 0.15s ease, color 0.15s ease;
+    padding: 4px;
+    line-height: 1;
+    flex-shrink: 0;
+    color: var(--text);
+  }
+
+  .copy-btn:hover  { opacity: 0.7; }
+  .copy-btn.copied { opacity: 1; color: var(--bright); }
+
   /* ── SETTINGS ── */
   .settings-wrap {
     width: 100%;
@@ -308,11 +324,12 @@
 
     <div class="row row-light" id="row-light">
       <div class="word-group light-group" id="group-light">
-        <button class="lock-btn" id="lock-light-mod" onclick="toggleLock('light-mod')" title="Lock">🔓</button>
+        <button class="lock-btn" id="lock-light-mod" onclick="toggleLock('light-mod')" title="Hold this word">🔓</button>
         <div>
           <div class="word-label">Light</div>
           <div class="word-text" id="word-light"></div>
         </div>
+        <button class="copy-btn" id="copy-light" onclick="copyPhrase('light')" title="Copy phrase">⧉</button>
       </div>
     </div>
 
@@ -322,17 +339,18 @@
         <div>
           <div class="word-text" id="word-noun"></div>
         </div>
-        <button class="lock-btn" id="lock-noun" onclick="toggleLock('noun')" title="Lock">🔓</button>
+        <button class="lock-btn" id="lock-noun" onclick="toggleLock('noun')" title="Hold this word">🔓</button>
       </div>
     </div>
 
     <div class="row row-dark" id="row-dark">
       <div class="word-group dark-group" id="group-dark">
-        <button class="lock-btn" id="lock-dark-mod" onclick="toggleLock('dark-mod')" title="Lock">🔓</button>
+        <button class="lock-btn" id="lock-dark-mod" onclick="toggleLock('dark-mod')" title="Hold this word">🔓</button>
         <div>
           <div class="word-text" id="word-dark"></div>
           <div class="word-label">Dark</div>
         </div>
+        <button class="copy-btn" id="copy-dark" onclick="copyPhrase('dark')" title="Copy phrase">⧉</button>
       </div>
     </div>
 
@@ -427,10 +445,24 @@ function generate() {
   renderHistory();
 }
 
+function copyPhrase(which) {
+  const noun = state.noun2 ? `${state.noun} ${state.noun2}` : state.noun;
+  const text = which === 'light'
+    ? `${state.lightMod} ${noun}`
+    : `${state.darkMod} ${noun}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(`copy-${which}`);
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
 function toggleLock(key) {
   locked[key] = !locked[key];
   const btn = document.getElementById(`lock-${key}`);
   btn.textContent = locked[key] ? '🔒' : '🔓';
+  btn.title = locked[key] ? 'Release this word' : 'Hold this word';
   btn.classList.toggle('locked', locked[key]);
 }
 
