@@ -17,10 +17,12 @@
 
     --mood-dark:    #ab7a7a;
     --mood-light:   #7aab8a;
-    --set-space:    #8a7aab;
-    --set-nature:   #7aab8a;
-    --set-city:     #7a9bab;
-    --set-fantasy:  #ab8a7a;
+    --set-space:      #8a7aab;
+    --set-nature:     #7aab8a;
+    --set-city:       #7a9bab;
+    --set-industrial: #ab9e7a;
+    --set-archive:    #9bab7a;
+    --set-fantasy:    #ab8a7a;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -149,12 +151,14 @@
   }
 
   /* Active states per type */
-  .selector-btn.active[data-val="dark"]    { border-color: var(--mood-dark);   color: var(--mood-dark); }
-  .selector-btn.active[data-val="light"]   { border-color: var(--mood-light);  color: var(--mood-light); }
-  .selector-btn.active[data-val="space"]   { border-color: var(--set-space);   color: var(--set-space); }
-  .selector-btn.active[data-val="nature"]  { border-color: var(--set-nature);  color: var(--set-nature); }
-  .selector-btn.active[data-val="city"]    { border-color: var(--set-city);    color: var(--set-city); }
-  .selector-btn.active[data-val="fantasy"] { border-color: var(--set-fantasy); color: var(--set-fantasy); }
+  .selector-btn.active[data-val="dark"]       { border-color: var(--mood-dark);       color: var(--mood-dark); }
+  .selector-btn.active[data-val="light"]      { border-color: var(--mood-light);      color: var(--mood-light); }
+  .selector-btn.active[data-val="space"]      { border-color: var(--set-space);       color: var(--set-space); }
+  .selector-btn.active[data-val="nature"]     { border-color: var(--set-nature);      color: var(--set-nature); }
+  .selector-btn.active[data-val="city"]       { border-color: var(--set-city);        color: var(--set-city); }
+  .selector-btn.active[data-val="industrial"] { border-color: var(--set-industrial);  color: var(--set-industrial); }
+  .selector-btn.active[data-val="archive"]    { border-color: var(--set-archive);     color: var(--set-archive); }
+  .selector-btn.active[data-val="fantasy"]    { border-color: var(--set-fantasy);     color: var(--set-fantasy); }
 
   /* Generate */
   .generate-btn {
@@ -228,16 +232,18 @@
 
   <div class="controls">
     <div class="control-row">
+      <div class="row-label">Setting</div>
+      <button class="selector-btn" data-group="setting" data-val="space"      onclick="toggle(this)">Space</button>
+      <button class="selector-btn" data-group="setting" data-val="nature"     onclick="toggle(this)">Nature</button>
+      <button class="selector-btn" data-group="setting" data-val="city"       onclick="toggle(this)">City</button>
+      <button class="selector-btn" data-group="setting" data-val="industrial" onclick="toggle(this)">Industrial</button>
+      <button class="selector-btn" data-group="setting" data-val="archive"    onclick="toggle(this)">Archive</button>
+      <button class="selector-btn" data-group="setting" data-val="fantasy"    onclick="toggle(this)">Fantasy</button>
+    </div>
+    <div class="control-row">
       <div class="row-label">Mood</div>
       <button class="selector-btn" data-group="mood" data-val="dark"    onclick="toggle(this)">Dark</button>
       <button class="selector-btn" data-group="mood" data-val="light"   onclick="toggle(this)">Light</button>
-    </div>
-    <div class="control-row">
-      <div class="row-label">Setting</div>
-      <button class="selector-btn" data-group="setting" data-val="space"   onclick="toggle(this)">Space</button>
-      <button class="selector-btn" data-group="setting" data-val="nature"  onclick="toggle(this)">Nature</button>
-      <button class="selector-btn" data-group="setting" data-val="city"    onclick="toggle(this)">City</button>
-      <button class="selector-btn" data-group="setting" data-val="fantasy" onclick="toggle(this)">Fantasy</button>
     </div>
   </div>
 
@@ -253,23 +259,27 @@
 <script>
 // Word pools — modifiers and nouns per mood, setting, and combos
 const modifiers = {
-  dark:    ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Incomplete','Threatening'],
-  light:   ['Drifting','Distant','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading'],
-  space:   ['Collapsed','Irradiated','Ancient','Uncharted','Orbital','Remnant','Expelled'],
-  nature:  ['Overgrown','Flooded','Weathered','Slow','Rooted','Submerged','Seasonal'],
-  city:    ['Compressed','Interrupted','Degraded','Looping','Wired','Concrete','Overnight'],
-  fantasy: ['Unnamed','Redacted','Lost','Incomplete','Forgotten','Buried','Uncharted'],
-  neutral: ['Lonely','Frozen','Decaying','Distant','Hollow','Buried','Drifting','Silent','Fractured','Borrowed','Forgotten','Slow','Pale','Broken','Last']
+  dark:       ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Incomplete','Threatening'],
+  light:      ['Drifting','Distant','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading'],
+  space:      ['Collapsed','Irradiated','Ancient','Uncharted','Orbital','Remnant','Expelled'],
+  nature:     ['Overgrown','Flooded','Weathered','Slow','Rooted','Submerged','Seasonal'],
+  city:       ['Compressed','Interrupted','Degraded','Looping','Wired','Concrete','Overnight'],
+  industrial: ['Corroded','Pressurized','Mechanical','Grinding','Dormant','Decommissioned','Leaking'],
+  archive:    ['Classified','Encrypted','Redacted','Deteriorating','Forgotten','Preserved','Incomplete'],
+  fantasy:    ['Unnamed','Redacted','Lost','Incomplete','Forgotten','Buried','Uncharted'],
+  neutral:    ['Lonely','Frozen','Decaying','Distant','Hollow','Buried','Drifting','Silent','Fractured','Borrowed','Forgotten','Slow','Pale','Broken','Last']
 };
 
 const nouns = {
-  dark:    ['Void','Ruin','Cipher','Threshold','Static','Chamber','Debris','Hollow','Remnant','Crater'],
-  light:   ['Shoreline','Horizon','Crossing','Echo','Passage','Dust','Ferry','Orbit','Bloom','Current'],
-  space:   ['Planet','Crater','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant','Signal'],
-  nature:  ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shore'],
-  city:    ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid'],
-  fantasy: ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness'],
-  neutral: ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Broadcast','Carrier','Interference','Tape','Tone','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
+  dark:       ['Void','Ruin','Cipher','Threshold','Static','Chamber','Debris','Hollow','Remnant','Crater'],
+  light:      ['Shoreline','Horizon','Crossing','Echo','Passage','Dust','Ferry','Orbit','Bloom','Current'],
+  space:      ['Planet','Crater','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant','Signal'],
+  nature:     ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shore'],
+  city:       ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid'],
+  industrial: ['Turbine','Pipeline','Compressor','Furnace','Silo','Substation','Foundry','Valve','Chamber','Generator'],
+  archive:    ['Dispatch','Chronicle','Relic','Operator','Tape','Record','Cipher','Dossier','Transmission','Broadcast'],
+  fantasy:    ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness'],
+  neutral:    ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Broadcast','Carrier','Tape','Tone','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
 };
 
 let selectedMood    = null;
