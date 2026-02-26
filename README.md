@@ -26,7 +26,15 @@ The light and dark modifiers are drawn from completely separate word pools so th
 
 Selecting a setting biases both the modifier and noun pools toward that world. Leave it unselected for pure surprise.
 
-No accounts, no API, no cost. Works offline after fonts load.
+---
+
+## Combinations
+
+Each mood modifier pool contains 25 words. Light and dark modifiers are drawn from completely separate pools — overlap is impossible by design. Setting noun pools each contain 25 words, with some nouns intentionally shared across settings (a city has archives, a fantasy world has nature).
+
+- 136 unique nouns across all 6 settings × 25 light × 25 dark = **85,000 combinations**
+- 3 neutral-only nouns (Ferry, Static, Echo) × 25 light × 25 dark = **1,875 combinations**
+- **Grand total: 86,875 unique combinations**
 
 ---
 
@@ -39,6 +47,8 @@ git clone https://github.com/CraigDamlo/Ambient-Concept-Generator.git
 cd Ambient-Concept-Generator
 open index.html
 ```
+
+Works offline after fonts load.
 
 ---
 
