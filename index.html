@@ -15,8 +15,6 @@
     --text: #b8b898;
     --bright: #e0e0c0;
 
-    --mood-dark:    #ab7a7a;
-    --mood-light:   #7aab8a;
     --set-space:      #8a7aab;
     --set-nature:     #7aab8a;
     --set-city:       #7a9bab;
@@ -66,42 +64,79 @@
     margin-bottom: 48px;
   }
 
-  /* Concept */
-  .concept-wrap {
-    min-height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 48px;
+  /* Dual concept display */
+  .concepts-wrap {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 48px;
   }
 
-  .concept-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-style: italic;
-    font-size: clamp(42px, 10vw, 72px);
-    color: var(--bright);
-    line-height: 1.1;
-    letter-spacing: -1px;
+  .concept-card {
+    width: 100%;
+    padding: 36px 40px;
     opacity: 0;
     transform: translateY(8px);
     transition: opacity 0.5s ease, transform 0.5s ease;
-    word-break: break-word;
-    display: none;
+    cursor: default;
   }
 
-  .concept-text.visible {
+  .concept-card.visible {
     opacity: 1;
     transform: translateY(0);
   }
 
-  .empty-state {
+  /* Light card — top */
+  .concept-card.light {
+    background: #13140f;
+    border: 1px solid #2a2e24;
+    border-bottom: none;
+  }
+
+  .concept-card.light .card-label {
+    font-size: 8px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #4a5a40;
+    margin-bottom: 12px;
+  }
+
+  .concept-card.light .card-text {
     font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
     font-weight: 300;
-    font-size: 22px;
-    color: var(--dim);
+    font-style: italic;
+    font-size: clamp(32px, 7vw, 54px);
+    color: #c8d4a8;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    word-break: break-word;
+  }
+
+  /* Dark card — bottom */
+  .concept-card.dark {
+    background: #060605;
+    border: 1px solid #1a1a18;
+    border-top: 1px solid #0e0e0c;
+  }
+
+  .concept-card.dark .card-label {
+    font-size: 8px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #383530;
+    margin-bottom: 12px;
+  }
+
+  .concept-card.dark .card-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(32px, 7vw, 54px);
+    color: #787060;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    word-break: break-word;
+    font-style: normal;
   }
 
   /* Controls */
@@ -225,9 +260,15 @@
 
   <div class="eyebrow">Soap Box Rocket // Concept Engine</div>
 
-  <div class="concept-wrap">
-    <div class="empty-state" id="empty"></div>
-    <div class="concept-text" id="concept-text"></div>
+  <div class="concepts-wrap">
+    <div class="concept-card light" id="card-light">
+      <div class="card-label">Light</div>
+      <div class="card-text" id="text-light"></div>
+    </div>
+    <div class="concept-card dark" id="card-dark">
+      <div class="card-label">Dark</div>
+      <div class="card-text" id="text-dark"></div>
+    </div>
   </div>
 
   <div class="controls">
@@ -239,11 +280,6 @@
       <button class="selector-btn" data-group="setting" data-val="industrial" onclick="toggle(this)">Industrial</button>
       <button class="selector-btn" data-group="setting" data-val="archive"    onclick="toggle(this)">Archive</button>
       <button class="selector-btn" data-group="setting" data-val="fantasy"    onclick="toggle(this)">Fantasy</button>
-    </div>
-    <div class="control-row">
-      <div class="row-label">Mood</div>
-      <button class="selector-btn" data-group="mood" data-val="dark"    onclick="toggle(this)">Dark</button>
-      <button class="selector-btn" data-group="mood" data-val="light"   onclick="toggle(this)">Light</button>
     </div>
   </div>
 
@@ -282,24 +318,19 @@ const nouns = {
   neutral:    ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Broadcast','Carrier','Tape','Tone','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
 };
 
-let selectedMood    = null;
 let selectedSetting = null;
 let history = [];
-let lastConcept = '';
+let lastLight = '';
+let lastDark  = '';
 
 function toggle(btn) {
-  const group = btn.dataset.group;
-  const val   = btn.dataset.val;
-
-  // Deselect others in same group
-  document.querySelectorAll(`.selector-btn[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
-
-  if (group === 'mood') {
-    if (selectedMood === val) { selectedMood = null; }
-    else { selectedMood = val; btn.classList.add('active'); }
+  const val = btn.dataset.val;
+  document.querySelectorAll('.selector-btn[data-group="setting"]').forEach(b => b.classList.remove('active'));
+  if (selectedSetting === val) {
+    selectedSetting = null;
   } else {
-    if (selectedSetting === val) { selectedSetting = null; }
-    else { selectedSetting = val; btn.classList.add('active'); }
+    selectedSetting = val;
+    btn.classList.add('active');
   }
 }
 
@@ -309,69 +340,73 @@ function pick(arr, exclude) {
 }
 
 function buildPool(source, keys) {
-  // Merge pools from relevant keys, deduplicate
   const combined = [];
   keys.forEach(k => { if (source[k]) source[k].forEach(w => { if (!combined.includes(w)) combined.push(w); }); });
   return combined;
 }
 
-function generate() {
-  const moodKey    = selectedMood    || null;
-  const settingKey = selectedSetting || null;
-
-  // Build modifier pool
-  const modKeys = ['neutral'];
-  if (moodKey)    modKeys.push(moodKey);
-  if (settingKey) modKeys.push(settingKey);
-  const modPool = buildPool(modifiers, modKeys);
-
-  // Build noun pool
+function makeConcept(moodKey, settingKey, excludeMod, excludeNoun) {
+  const modKeys  = [moodKey, 'neutral'];
   const nounKeys = ['neutral'];
-  if (moodKey)    nounKeys.push(moodKey);
-  if (settingKey) nounKeys.push(settingKey);
+  if (settingKey) { modKeys.push(settingKey); nounKeys.push(settingKey); }
 
-  // Weight setting nouns more heavily when a setting is chosen
+  const modPool  = buildPool(modifiers, modKeys);
   let nounPool;
   if (settingKey) {
-    // 60% chance to draw noun from setting pool, 40% from full pool
     nounPool = [...nouns[settingKey], ...nouns[settingKey], ...buildPool(nouns, nounKeys)];
-  } else if (moodKey) {
-    nounPool = [...nouns[moodKey], ...nouns[moodKey], ...nouns.neutral];
   } else {
-    nounPool = nouns.neutral;
+    nounPool = buildPool(nouns, [moodKey, 'neutral']);
   }
 
-  const modifier = pick(modPool, history[0]?.modifier);
-  const noun1    = pick(nounPool, history[0]?.noun1);
-
+  const modifier = pick(modPool, excludeMod);
+  const noun1    = pick(nounPool, excludeNoun);
   const useThree = Math.random() < 0.35;
   let noun2 = null;
-  if (useThree) {
-    noun2 = pick(nounPool.filter(n => n !== noun1), history[0]?.noun2);
-  }
+  if (useThree) noun2 = pick(nounPool.filter(n => n !== noun1));
 
-  const concept = useThree ? `${modifier} ${noun1} ${noun2}` : `${modifier} ${noun1}`;
-  if (concept === lastConcept) { generate(); return; }
-  lastConcept = concept;
+  return useThree ? `${modifier} ${noun1} ${noun2}` : `${modifier} ${noun1}`;
+}
 
-  history.unshift({ text: concept, modifier, noun1, noun2 });
+function generate() {
+  const s = selectedSetting || null;
+
+  let lightConcept, darkConcept;
+  let attempts = 0;
+  do {
+    lightConcept = makeConcept('light', s, null, null);
+    attempts++;
+  } while (lightConcept === lastLight && attempts < 10);
+
+  attempts = 0;
+  do {
+    darkConcept = makeConcept('dark', s, null, null);
+    attempts++;
+  } while ((darkConcept === lastDark || darkConcept === lightConcept) && attempts < 10);
+
+  lastLight = lightConcept;
+  lastDark  = darkConcept;
+
+  history.unshift({ light: lightConcept, dark: darkConcept });
   if (history.length > 10) history.pop();
 
-  showConcept(concept);
+  showConcepts(lightConcept, darkConcept);
   renderHistory();
 }
 
-function showConcept(concept) {
-  const textEl  = document.getElementById('concept-text');
-  const emptyEl = document.getElementById('empty');
+function showConcepts(light, dark) {
+  const lightCard = document.getElementById('card-light');
+  const darkCard  = document.getElementById('card-dark');
 
-  textEl.classList.remove('visible');
+  lightCard.classList.remove('visible');
+  darkCard.classList.remove('visible');
 
   setTimeout(() => {
-    emptyEl.style.display = 'none';
-    textEl.style.display  = 'block';
-    textEl.textContent    = concept;
-    requestAnimationFrame(() => textEl.classList.add('visible'));
+    document.getElementById('text-light').textContent = light;
+    document.getElementById('text-dark').textContent  = dark;
+    requestAnimationFrame(() => {
+      lightCard.classList.add('visible');
+      setTimeout(() => darkCard.classList.add('visible'), 120);
+    });
   }, 150);
 }
 
@@ -381,13 +416,14 @@ function renderHistory() {
   if (history.length <= 1) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   items.innerHTML = history.slice(1).map((h, i) =>
-    `<span class="history-chip" onclick="recallHistory(${i+1})">${h.text}</span>
+    `<span class="history-chip" onclick="recallHistory(${i+1})">${h.light} / ${h.dark}</span>
      <span class="history-sep">·</span>`
   ).join('');
 }
 
 function recallHistory(i) {
-  showConcept(history[i].text);
+  const h = history[i];
+  showConcepts(h.light, h.dark);
 }
 
 window.addEventListener('load', () => setTimeout(generate, 300));
