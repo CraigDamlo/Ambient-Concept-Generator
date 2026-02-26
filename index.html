@@ -363,15 +363,14 @@
 
 <script>
 const modifiers = {
-  dark:       ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Threatening','Incomplete'],
-  light:      ['Drifting','Distant','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading'],
-  space:      ['Collapsed','Irradiated','Ancient','Uncharted','Orbital','Expelled'],
+  light:      ['Drifting','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading','Lonely'],
+  dark:       ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Threatening','Incomplete','Distant'],
+  space:      ['Ancient','Uncharted','Orbital','Expelled','Irradiated','Collapsed'],
   nature:     ['Overgrown','Flooded','Weathered','Rooted','Submerged','Seasonal'],
   city:       ['Compressed','Interrupted','Degraded','Looping','Wired','Overnight'],
   industrial: ['Corroded','Pressurized','Grinding','Dormant','Decommissioned','Leaking'],
   archive:    ['Classified','Encrypted','Redacted','Deteriorating','Preserved','Incomplete'],
-  fantasy:    ['Unnamed','Lost','Forgotten','Buried','Uncharted','Cursed'],
-  neutral:    ['Lonely','Frozen','Decaying','Distant','Hollow','Buried','Drifting','Silent','Fractured','Borrowed','Forgotten','Slow','Pale','Broken','Last']
+  fantasy:    ['Unnamed','Cursed','Uncharted','Buried','Forsaken','Bound']
 };
 
 const nouns = {
@@ -402,7 +401,7 @@ function buildPool(source, keys) {
 }
 
 function getModPool(mood) {
-  const keys = [mood, 'neutral'];
+  const keys = [mood];
   if (selectedSetting) keys.push(selectedSetting);
   return buildPool(modifiers, keys);
 }
@@ -416,7 +415,6 @@ function generate() {
   if (!locked['light-mod']) state.lightMod = pick(getModPool('light'), state.lightMod);
   if (!locked['noun'])      state.noun     = pick(getNounPool(), state.noun);
   if (!locked['dark-mod'])  state.darkMod  = pick(getModPool('dark'), state.darkMod);
-  if (state.darkMod === state.lightMod) state.darkMod = pick(getModPool('dark').filter(w => w !== state.lightMod));
 
   history.unshift({ ...state });
   if (history.length > 10) history.pop();
