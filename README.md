@@ -1,6 +1,6 @@
 # Ambient Concept Generator
 
-A browser-based inspiration tool for ambient musicians. Combines modifiers and nouns across moods and settings to generate evocative two or three word concepts as starting points for new pieces.
+A browser-based inspiration tool for ambient musicians. Combines modifiers and nouns to generate concept starting points for new pieces — displayed as a flowchart showing a light and dark take on the same anchor word.
 
 **[→ Open the Tool](https://craigdamlo.github.io/Ambient-Concept-Generator/)**
 
@@ -10,13 +10,21 @@ A browser-based inspiration tool for ambient musicians. Combines modifiers and n
 
 ## What It Does
 
-Opens with a concept already loaded. Hit Generate to get another. Optionally filter by Mood and Setting to bias the results toward what you're already feeling — or leave both unselected for pure surprise.
+Opens with a concept already loaded. Hit Generate to get another.
 
-**Mood** (optional): Dark · Light
+The layout shows three words connected by lines:
 
-**Setting** (optional): Space · Nature · City · Fantasy
+- **Light modifier** (top) — an evocative word drawn from the light pool
+- **Noun** (center, right-justified) — the shared anchor word
+- **Dark modifier** (bottom) — a contrasting word drawn from the dark pool
 
-Combinations work independently — Dark + Space gives you something different from Dark + Nature or just Dark alone. Previous concepts appear at the bottom as clickable chips.
+The light and dark modifiers are drawn from completely separate word pools so they're always genuinely distinct. The noun is the shared anchor — both concepts tell a different story about the same thing.
+
+**Lock any word** by tapping 🔓 next to it. Locked words survive a Generate, letting you zero in on a concept piece by piece rather than rerolling everything at once. Changing the setting unlocks all words.
+
+**Setting** (optional): Space · Nature · City · Industrial · Archive · Fantasy
+
+Selecting a setting biases both the modifier and noun pools toward that world. Leave it unselected for pure surprise.
 
 No accounts, no API, no cost. Works offline after fonts load.
 
