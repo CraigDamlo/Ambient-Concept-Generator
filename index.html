@@ -383,7 +383,7 @@ const nouns = {
   neutral:    ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Tape','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
 };
 
-let state   = { lightMod: '', noun: '', darkMod: '' };
+let state   = { lightMod: '', noun: '', noun2: '', darkMod: '' };
 let locked  = { 'light-mod': false, 'noun': false, 'dark-mod': false };
 let selectedSetting = null;
 let history = [];
@@ -413,7 +413,11 @@ function getNounPool() {
 
 function generate() {
   if (!locked['light-mod']) state.lightMod = pick(getModPool('light'), state.lightMod);
-  if (!locked['noun'])      state.noun     = pick(getNounPool(), state.noun);
+  if (!locked['noun']) {
+    const pool = getNounPool();
+    state.noun  = pick(pool, state.noun);
+    state.noun2 = Math.random() < 0.35 ? pick(pool.filter(n => n !== state.noun), state.noun2) : '';
+  }
   if (!locked['dark-mod'])  state.darkMod  = pick(getModPool('dark'), state.darkMod);
 
   history.unshift({ ...state });
@@ -445,13 +449,13 @@ function toggleSetting(btn) {
 
 function render() {
   document.getElementById('word-light').textContent = state.lightMod;
-  document.getElementById('word-noun').textContent  = state.noun;
+  const nounEl = document.getElementById('word-noun');
+  nounEl.textContent = state.noun2 ? `${state.noun} ${state.noun2}` : state.noun;
   document.getElementById('word-dark').textContent  = state.darkMod;
 
   const diagram = document.getElementById('diagram');
   if (!diagram.classList.contains('visible')) diagram.classList.add('visible');
 
-  // Draw lines after layout settles
   requestAnimationFrame(() => requestAnimationFrame(drawLines));
 }
 
@@ -489,10 +493,11 @@ function renderHistory() {
   const items = document.getElementById('history-items');
   if (history.length <= 1) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
-  items.innerHTML = history.slice(1).map((h, i) =>
-    `<span class="history-chip" onclick="recallHistory(${i+1})">${h.lightMod} · ${h.noun} · ${h.darkMod}</span>
-     <span class="history-sep">—</span>`
-  ).join('');
+  items.innerHTML = history.slice(1).map((h, i) => {
+    const noun = h.noun2 ? `${h.noun} ${h.noun2}` : h.noun;
+    return `<span class="history-chip" onclick="recallHistory(${i+1})">${h.lightMod} · ${noun} · ${h.darkMod}</span>
+     <span class="history-sep">—</span>`;
+  }).join('');
 }
 
 function recallHistory(i) {

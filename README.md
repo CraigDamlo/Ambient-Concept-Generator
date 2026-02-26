@@ -32,9 +32,12 @@ Selecting a setting biases both the modifier and noun pools toward that world. L
 
 Each mood modifier pool contains 25 words. Light and dark modifiers are drawn from completely separate pools — overlap is impossible by design. Setting noun pools each contain 25 words, with some nouns intentionally shared across settings (a city has archives, a fantasy world has nature).
 
-- 136 unique nouns across all 6 settings × 25 light × 25 dark = **85,000 combinations**
-- 3 neutral-only nouns (Ferry, Static, Echo) × 25 light × 25 dark = **1,875 combinations**
-- **Grand total: 86,875 unique combinations**
+There is a 35% chance of a two-noun anchor being generated, multiplying the possible combinations significantly.
+
+- 136 unique nouns across all 6 settings × 25 light × 25 dark = **85,000 single-noun combinations**
+- 3 neutral-only nouns (Ferry, Static, Echo) × 25 light × 25 dark = **1,875 additional combinations**
+- Two-noun pairs from 139 unique nouns: 139 × 138 / 2 × 25 × 25 = **5,990,625 two-noun combinations**
+- **Grand total: ~6,077,500 unique combinations**
 
 ---
 
