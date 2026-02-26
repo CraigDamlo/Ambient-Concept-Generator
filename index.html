@@ -4,16 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ambient Concept Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #080807;
-    --border: #1e1e1c;
-    --border-mid: #2e2e2a;
-    --dim: #383830;
-    --mid: #686858;
-    --text: #b8b898;
-    --bright: #e0e0c0;
+    --bg:        #080807;
+    --border:    #1e1e1c;
+    --border-mid:#2e2e2a;
+    --dim:       #383830;
+    --mid:       #606050;
+    --text:      #b8b898;
+    --bright:    #e0e0c0;
+    --line:      #2a2a22;
+
+    --light-text:   #c8d4a8;
+    --light-label:  #4a5a40;
+    --light-lock:   #3a4a30;
+
+    --dark-text:    #786858;
+    --dark-label:   #403830;
+    --dark-lock:    #302820;
+
+    --noun-text:    #c8b880;
+    --noun-label:   #504838;
 
     --set-space:      #8a7aab;
     --set-nature:     #7aab8a;
@@ -33,8 +45,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 48px 24px;
+    padding: 48px 24px 80px;
   }
 
   body::after {
@@ -49,11 +60,10 @@
 
   .wrap {
     width: 100%;
-    max-width: 620px;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
   }
 
   .eyebrow {
@@ -61,99 +71,130 @@
     letter-spacing: 5px;
     color: var(--dim);
     text-transform: uppercase;
-    margin-bottom: 48px;
+    margin-bottom: 56px;
+    align-self: flex-start;
   }
 
-  /* Dual concept display */
-  .concepts-wrap {
+  /* ── DIAGRAM ── */
+  .diagram {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    margin-bottom: 48px;
-  }
-
-  .concept-card {
-    width: 100%;
-    padding: 36px 40px;
+    position: relative;
+    margin-bottom: 52px;
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
     transition: opacity 0.5s ease, transform 0.5s ease;
-    cursor: default;
   }
 
-  .concept-card.visible {
+  .diagram.visible {
     opacity: 1;
     transform: translateY(0);
   }
 
-  /* Light card — top */
-  .concept-card.light {
-    background: #13140f;
-    border: 1px solid #2a2e24;
-    border-bottom: none;
-  }
-
-  .concept-card.light .card-label {
-    font-size: 8px;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    color: #4a5a40;
-    margin-bottom: 12px;
-  }
-
-  .concept-card.light .card-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-style: italic;
-    font-size: clamp(32px, 7vw, 54px);
-    color: #c8d4a8;
-    line-height: 1.1;
-    letter-spacing: -0.5px;
-    word-break: break-word;
-  }
-
-  /* Dark card — bottom */
-  .concept-card.dark {
-    background: #060605;
-    border: 1px solid #1a1a18;
-    border-top: 1px solid #0e0e0c;
-  }
-
-  .concept-card.dark .card-label {
-    font-size: 8px;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    color: #383530;
-    margin-bottom: 12px;
-  }
-
-  .concept-card.dark .card-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: clamp(32px, 7vw, 54px);
-    color: #787060;
-    line-height: 1.1;
-    letter-spacing: 1px;
-    word-break: break-word;
-    font-style: normal;
-  }
-
-  /* Controls */
-  .controls {
+  /* SVG lines layer — sits behind the words */
+  .lines-svg {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    margin-bottom: 36px;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .lines-svg line {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+
+  /* Three rows: light, noun, dark */
+  .row {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 12px 0;
+  }
+
+  .row-light  { justify-content: flex-start; padding-left: 0; }
+  .row-noun   { justify-content: center; padding: 20px 0; }
+  .row-dark   { justify-content: flex-start; padding-left: 0; }
+
+  /* Word + lock grouped */
+  .word-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .word-label {
+    font-size: 8px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .light-group .word-label { color: var(--light-label); }
+  .noun-group  .word-label { color: var(--noun-label); text-align: center; }
+  .dark-group  .word-label { color: var(--dark-label); }
+
+  .word-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    line-height: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .light-group .word-text {
+    font-style: italic;
+    font-size: clamp(30px, 7vw, 48px);
+    color: var(--light-text);
+    letter-spacing: -0.5px;
+  }
+
+  .noun-group .word-text {
+    font-style: normal;
+    font-size: clamp(36px, 9vw, 60px);
+    color: var(--noun-text);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 400;
+    text-align: center;
+  }
+
+  .dark-group .word-text {
+    font-style: normal;
+    font-size: clamp(30px, 7vw, 48px);
+    color: var(--dark-text);
+    letter-spacing: 2px;
+  }
+
+  /* Lock button */
+  .lock-btn {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: opacity 0.15s ease;
+    padding: 4px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .lock-btn:hover  { opacity: 0.7; }
+  .lock-btn.locked { opacity: 1; }
+
+  /* ── SETTINGS ── */
+  .settings-wrap {
+    width: 100%;
+    margin-bottom: 32px;
   }
 
   .control-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    justify-content: center;
+    gap: 8px;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .row-label {
@@ -174,26 +215,19 @@
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    padding: 8px 16px;
+    padding: 7px 14px;
     cursor: pointer;
     transition: all 0.12s ease;
   }
 
-  .selector-btn:hover {
-    color: var(--text);
-    border-color: var(--border-mid);
-    filter: brightness(1.4);
-  }
+  .selector-btn:hover { color: var(--text); border-color: var(--text); }
 
-  /* Active states per type */
-  .selector-btn.active[data-val="dark"]       { border-color: var(--mood-dark);       color: var(--mood-dark); }
-  .selector-btn.active[data-val="light"]      { border-color: var(--mood-light);      color: var(--mood-light); }
-  .selector-btn.active[data-val="space"]      { border-color: var(--set-space);       color: var(--set-space); }
-  .selector-btn.active[data-val="nature"]     { border-color: var(--set-nature);      color: var(--set-nature); }
-  .selector-btn.active[data-val="city"]       { border-color: var(--set-city);        color: var(--set-city); }
-  .selector-btn.active[data-val="industrial"] { border-color: var(--set-industrial);  color: var(--set-industrial); }
-  .selector-btn.active[data-val="archive"]    { border-color: var(--set-archive);     color: var(--set-archive); }
-  .selector-btn.active[data-val="fantasy"]    { border-color: var(--set-fantasy);     color: var(--set-fantasy); }
+  .selector-btn.active[data-val="space"]      { border-color: var(--set-space);      color: var(--set-space); }
+  .selector-btn.active[data-val="nature"]     { border-color: var(--set-nature);     color: var(--set-nature); }
+  .selector-btn.active[data-val="city"]       { border-color: var(--set-city);       color: var(--set-city); }
+  .selector-btn.active[data-val="industrial"] { border-color: var(--set-industrial); color: var(--set-industrial); }
+  .selector-btn.active[data-val="archive"]    { border-color: var(--set-archive);    color: var(--set-archive); }
+  .selector-btn.active[data-val="fantasy"]    { border-color: var(--set-fantasy);    color: var(--set-fantasy); }
 
   /* Generate */
   .generate-btn {
@@ -204,17 +238,13 @@
     font-size: 11px;
     letter-spacing: 5px;
     text-transform: uppercase;
-    padding: 16px 48px;
+    padding: 14px 44px;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-bottom: 52px;
   }
 
-  .generate-btn:hover {
-    border-color: var(--bright);
-    color: var(--bright);
-  }
-
+  .generate-btn:hover { border-color: var(--bright); color: var(--bright); }
   .generate-btn:active { transform: scale(0.97); }
 
   /* History */
@@ -231,6 +261,7 @@
     color: var(--dim);
     text-transform: uppercase;
     margin-bottom: 14px;
+    text-align: center;
   }
 
   .history-items {
@@ -244,7 +275,7 @@
   .history-chip {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 15px;
+    font-size: 13px;
     color: var(--mid);
     cursor: pointer;
     transition: color 0.12s;
@@ -252,7 +283,7 @@
   }
 
   .history-chip:hover { color: var(--text); }
-  .history-sep { color: var(--dim); font-size: 11px; }
+  .history-sep { color: var(--dim); font-size: 10px; }
 </style>
 </head>
 <body>
@@ -260,26 +291,54 @@
 
   <div class="eyebrow">Soap Box Rocket // Concept Engine</div>
 
-  <div class="concepts-wrap">
-    <div class="concept-card light" id="card-light">
-      <div class="card-label">Light</div>
-      <div class="card-text" id="text-light"></div>
+  <!-- Diagram -->
+  <div class="diagram" id="diagram">
+
+    <svg class="lines-svg" id="lines-svg"><line id="line-light"/><line id="line-dark"/></svg>
+
+    <div class="row row-light" id="row-light">
+      <div class="word-group light-group" id="group-light">
+        <div>
+          <div class="word-label">Light</div>
+          <div class="word-text" id="word-light"></div>
+        </div>
+        <button class="lock-btn" id="lock-light-mod" onclick="toggleLock('light-mod')" title="Lock">🔓</button>
+      </div>
     </div>
-    <div class="concept-card dark" id="card-dark">
-      <div class="card-label">Dark</div>
-      <div class="card-text" id="text-dark"></div>
+
+    <div class="row row-noun" id="row-noun">
+      <div class="word-group noun-group" id="group-noun">
+        <button class="lock-btn" id="lock-noun" onclick="toggleLock('noun')" title="Lock">🔓</button>
+        <div>
+          <div class="word-label">Noun</div>
+          <div class="word-text" id="word-noun"></div>
+        </div>
+        <button class="lock-btn" style="visibility:hidden">🔓</button>
+      </div>
     </div>
+
+    <div class="row row-dark" id="row-dark">
+      <div class="word-group dark-group" id="group-dark">
+        <div>
+          <div class="word-label">Dark</div>
+          <div class="word-text" id="word-dark"></div>
+        </div>
+        <button class="lock-btn" id="lock-dark-mod" onclick="toggleLock('dark-mod')" title="Lock">🔓</button>
+      </div>
+    </div>
+
   </div>
 
-  <div class="controls">
+  <!-- Settings -->
+  <div class="settings-wrap">
     <div class="control-row">
       <div class="row-label">Setting</div>
-      <button class="selector-btn" data-group="setting" data-val="space"      onclick="toggle(this)">Space</button>
-      <button class="selector-btn" data-group="setting" data-val="nature"     onclick="toggle(this)">Nature</button>
-      <button class="selector-btn" data-group="setting" data-val="city"       onclick="toggle(this)">City</button>
-      <button class="selector-btn" data-group="setting" data-val="industrial" onclick="toggle(this)">Industrial</button>
-      <button class="selector-btn" data-group="setting" data-val="archive"    onclick="toggle(this)">Archive</button>
-      <button class="selector-btn" data-group="setting" data-val="fantasy"    onclick="toggle(this)">Fantasy</button>
+      <button class="selector-btn" data-group="setting" data-val="space"      onclick="toggleSetting(this)">Space</button>
+      <button class="selector-btn" data-group="setting" data-val="nature"     onclick="toggleSetting(this)">Nature</button>
+      <button class="selector-btn" data-group="setting" data-val="city"       onclick="toggleSetting(this)">City</button>
+      <button class="selector-btn" data-group="setting" data-val="industrial" onclick="toggleSetting(this)">Industrial</button>
+      <button class="selector-btn" data-group="setting" data-val="archive"    onclick="toggleSetting(this)">Archive</button>
+      <button class="selector-btn" data-group="setting" data-val="fantasy"    onclick="toggleSetting(this)">Fantasy</button>
     </div>
   </div>
 
@@ -293,121 +352,128 @@
 </div>
 
 <script>
-// Word pools — modifiers and nouns per mood, setting, and combos
 const modifiers = {
-  dark:       ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Incomplete','Threatening'],
+  dark:       ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Threatening','Incomplete'],
   light:      ['Drifting','Distant','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading'],
-  space:      ['Collapsed','Irradiated','Ancient','Uncharted','Orbital','Remnant','Expelled'],
-  nature:     ['Overgrown','Flooded','Weathered','Slow','Rooted','Submerged','Seasonal'],
-  city:       ['Compressed','Interrupted','Degraded','Looping','Wired','Concrete','Overnight'],
-  industrial: ['Corroded','Pressurized','Mechanical','Grinding','Dormant','Decommissioned','Leaking'],
-  archive:    ['Classified','Encrypted','Redacted','Deteriorating','Forgotten','Preserved','Incomplete'],
-  fantasy:    ['Unnamed','Redacted','Lost','Incomplete','Forgotten','Buried','Uncharted'],
+  space:      ['Collapsed','Irradiated','Ancient','Uncharted','Orbital','Expelled'],
+  nature:     ['Overgrown','Flooded','Weathered','Rooted','Submerged','Seasonal'],
+  city:       ['Compressed','Interrupted','Degraded','Looping','Wired','Overnight'],
+  industrial: ['Corroded','Pressurized','Grinding','Dormant','Decommissioned','Leaking'],
+  archive:    ['Classified','Encrypted','Redacted','Deteriorating','Preserved','Incomplete'],
+  fantasy:    ['Unnamed','Lost','Forgotten','Buried','Uncharted','Cursed'],
   neutral:    ['Lonely','Frozen','Decaying','Distant','Hollow','Buried','Drifting','Silent','Fractured','Borrowed','Forgotten','Slow','Pale','Broken','Last']
 };
 
 const nouns = {
-  dark:       ['Void','Ruin','Cipher','Threshold','Static','Chamber','Debris','Hollow','Remnant','Crater'],
-  light:      ['Shoreline','Horizon','Crossing','Echo','Passage','Dust','Ferry','Orbit','Bloom','Current'],
   space:      ['Planet','Crater','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant','Signal'],
   nature:     ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shore'],
   city:       ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid'],
   industrial: ['Turbine','Pipeline','Compressor','Furnace','Silo','Substation','Foundry','Valve','Chamber','Generator'],
   archive:    ['Dispatch','Chronicle','Relic','Operator','Tape','Record','Cipher','Dossier','Transmission','Broadcast'],
   fantasy:    ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness'],
-  neutral:    ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Broadcast','Carrier','Tape','Tone','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
+  neutral:    ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Tape','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
 };
 
+let state   = { lightMod: '', noun: '', darkMod: '' };
+let locked  = { 'light-mod': false, 'noun': false, 'dark-mod': false };
 let selectedSetting = null;
 let history = [];
-let lastLight = '';
-let lastDark  = '';
-
-function toggle(btn) {
-  const val = btn.dataset.val;
-  document.querySelectorAll('.selector-btn[data-group="setting"]').forEach(b => b.classList.remove('active'));
-  if (selectedSetting === val) {
-    selectedSetting = null;
-  } else {
-    selectedSetting = val;
-    btn.classList.add('active');
-  }
-}
 
 function pick(arr, exclude) {
   const pool = exclude ? arr.filter(x => x !== exclude) : [...arr];
+  if (!pool.length) return arr[Math.floor(Math.random() * arr.length)];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function buildPool(source, keys) {
-  const combined = [];
-  keys.forEach(k => { if (source[k]) source[k].forEach(w => { if (!combined.includes(w)) combined.push(w); }); });
-  return combined;
+  const out = [];
+  keys.forEach(k => { if (source[k]) source[k].forEach(w => { if (!out.includes(w)) out.push(w); }); });
+  return out;
 }
 
-function makeConcept(moodKey, settingKey, excludeMod, excludeNoun) {
-  const modKeys  = [moodKey, 'neutral'];
-  const nounKeys = ['neutral'];
-  if (settingKey) { modKeys.push(settingKey); nounKeys.push(settingKey); }
+function getModPool(mood) {
+  const keys = [mood, 'neutral'];
+  if (selectedSetting) keys.push(selectedSetting);
+  return buildPool(modifiers, keys);
+}
 
-  const modPool  = buildPool(modifiers, modKeys);
-  let nounPool;
-  if (settingKey) {
-    nounPool = [...nouns[settingKey], ...nouns[settingKey], ...buildPool(nouns, nounKeys)];
-  } else {
-    nounPool = buildPool(nouns, [moodKey, 'neutral']);
-  }
-
-  const modifier = pick(modPool, excludeMod);
-  const noun1    = pick(nounPool, excludeNoun);
-  const useThree = Math.random() < 0.35;
-  let noun2 = null;
-  if (useThree) noun2 = pick(nounPool.filter(n => n !== noun1));
-
-  return useThree ? `${modifier} ${noun1} ${noun2}` : `${modifier} ${noun1}`;
+function getNounPool() {
+  if (selectedSetting) return [...nouns[selectedSetting], ...nouns[selectedSetting], ...nouns.neutral];
+  return nouns.neutral;
 }
 
 function generate() {
-  const s = selectedSetting || null;
+  if (!locked['light-mod']) state.lightMod = pick(getModPool('light'), state.lightMod);
+  if (!locked['noun'])      state.noun     = pick(getNounPool(), state.noun);
+  if (!locked['dark-mod'])  state.darkMod  = pick(getModPool('dark'), state.darkMod);
+  if (state.darkMod === state.lightMod) state.darkMod = pick(getModPool('dark').filter(w => w !== state.lightMod));
 
-  let lightConcept, darkConcept;
-  let attempts = 0;
-  do {
-    lightConcept = makeConcept('light', s, null, null);
-    attempts++;
-  } while (lightConcept === lastLight && attempts < 10);
-
-  attempts = 0;
-  do {
-    darkConcept = makeConcept('dark', s, null, null);
-    attempts++;
-  } while ((darkConcept === lastDark || darkConcept === lightConcept) && attempts < 10);
-
-  lastLight = lightConcept;
-  lastDark  = darkConcept;
-
-  history.unshift({ light: lightConcept, dark: darkConcept });
+  history.unshift({ ...state });
   if (history.length > 10) history.pop();
 
-  showConcepts(lightConcept, darkConcept);
+  render();
   renderHistory();
 }
 
-function showConcepts(light, dark) {
-  const lightCard = document.getElementById('card-light');
-  const darkCard  = document.getElementById('card-dark');
+function toggleLock(key) {
+  locked[key] = !locked[key];
+  const btn = document.getElementById(`lock-${key}`);
+  btn.textContent = locked[key] ? '🔒' : '🔓';
+  btn.classList.toggle('locked', locked[key]);
+}
 
-  lightCard.classList.remove('visible');
-  darkCard.classList.remove('visible');
+function toggleSetting(btn) {
+  const val = btn.dataset.val;
+  document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
+  selectedSetting = (selectedSetting === val) ? null : val;
+  if (selectedSetting) btn.classList.add('active');
+  // Unlock all
+  Object.keys(locked).forEach(k => {
+    locked[k] = false;
+    const lb = document.getElementById(`lock-${k}`);
+    if (lb) { lb.textContent = '🔓'; lb.classList.remove('locked'); }
+  });
+}
 
-  setTimeout(() => {
-    document.getElementById('text-light').textContent = light;
-    document.getElementById('text-dark').textContent  = dark;
-    requestAnimationFrame(() => {
-      lightCard.classList.add('visible');
-      setTimeout(() => darkCard.classList.add('visible'), 120);
-    });
-  }, 150);
+function render() {
+  document.getElementById('word-light').textContent = state.lightMod;
+  document.getElementById('word-noun').textContent  = state.noun;
+  document.getElementById('word-dark').textContent  = state.darkMod;
+
+  const diagram = document.getElementById('diagram');
+  if (!diagram.classList.contains('visible')) diagram.classList.add('visible');
+
+  // Draw lines after layout settles
+  requestAnimationFrame(() => requestAnimationFrame(drawLines));
+}
+
+function drawLines() {
+  const svg       = document.getElementById('lines-svg');
+  const diagRect  = document.getElementById('diagram').getBoundingClientRect();
+
+  const lightEl   = document.getElementById('word-light');
+  const nounEl    = document.getElementById('word-noun');
+  const darkEl    = document.getElementById('word-dark');
+
+  function center(el) {
+    const r = el.getBoundingClientRect();
+    return {
+      x: r.left + r.width  / 2 - diagRect.left,
+      y: r.top  + r.height / 2 - diagRect.top
+    };
+  }
+
+  const lc = center(lightEl);
+  const nc = center(nounEl);
+  const dc = center(darkEl);
+
+  const lineLight = document.getElementById('line-light');
+  lineLight.setAttribute('x1', lc.x); lineLight.setAttribute('y1', lc.y);
+  lineLight.setAttribute('x2', nc.x); lineLight.setAttribute('y2', nc.y);
+
+  const lineDark = document.getElementById('line-dark');
+  lineDark.setAttribute('x1', dc.x); lineDark.setAttribute('y1', dc.y);
+  lineDark.setAttribute('x2', nc.x); lineDark.setAttribute('y2', nc.y);
 }
 
 function renderHistory() {
@@ -416,17 +482,18 @@ function renderHistory() {
   if (history.length <= 1) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   items.innerHTML = history.slice(1).map((h, i) =>
-    `<span class="history-chip" onclick="recallHistory(${i+1})">${h.light} / ${h.dark}</span>
-     <span class="history-sep">·</span>`
+    `<span class="history-chip" onclick="recallHistory(${i+1})">${h.lightMod} · ${h.noun} · ${h.darkMod}</span>
+     <span class="history-sep">—</span>`
   ).join('');
 }
 
 function recallHistory(i) {
-  const h = history[i];
-  showConcepts(h.light, h.dark);
+  state = { ...history[i] };
+  render();
 }
 
-window.addEventListener('load', () => setTimeout(generate, 300));
+window.addEventListener('load',   () => setTimeout(generate, 300));
+window.addEventListener('resize', drawLines);
 </script>
 </body>
 </html>
