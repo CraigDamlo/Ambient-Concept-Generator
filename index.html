@@ -19,9 +19,8 @@
     --mood-light:   #7aab8a;
     --set-space:    #8a7aab;
     --set-nature:   #7aab8a;
-    --set-urban:    #7a9bab;
-    --set-signal:   #ab9e7a;
-    --set-fiction:  #ab8a7a;
+    --set-city:     #7a9bab;
+    --set-fantasy:  #ab8a7a;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -154,9 +153,8 @@
   .selector-btn.active[data-val="light"]   { border-color: var(--mood-light);  color: var(--mood-light); }
   .selector-btn.active[data-val="space"]   { border-color: var(--set-space);   color: var(--set-space); }
   .selector-btn.active[data-val="nature"]  { border-color: var(--set-nature);  color: var(--set-nature); }
-  .selector-btn.active[data-val="urban"]   { border-color: var(--set-urban);   color: var(--set-urban); }
-  .selector-btn.active[data-val="signal"]  { border-color: var(--set-signal);  color: var(--set-signal); }
-  .selector-btn.active[data-val="fiction"] { border-color: var(--set-fiction); color: var(--set-fiction); }
+  .selector-btn.active[data-val="city"]    { border-color: var(--set-city);    color: var(--set-city); }
+  .selector-btn.active[data-val="fantasy"] { border-color: var(--set-fantasy); color: var(--set-fantasy); }
 
   /* Generate */
   .generate-btn {
@@ -238,9 +236,8 @@
       <div class="row-label">Setting</div>
       <button class="selector-btn" data-group="setting" data-val="space"   onclick="toggle(this)">Space</button>
       <button class="selector-btn" data-group="setting" data-val="nature"  onclick="toggle(this)">Nature</button>
-      <button class="selector-btn" data-group="setting" data-val="urban"   onclick="toggle(this)">Urban</button>
-      <button class="selector-btn" data-group="setting" data-val="signal"  onclick="toggle(this)">Signal</button>
-      <button class="selector-btn" data-group="setting" data-val="fiction" onclick="toggle(this)">Fictional</button>
+      <button class="selector-btn" data-group="setting" data-val="city"    onclick="toggle(this)">City</button>
+      <button class="selector-btn" data-group="setting" data-val="fantasy" onclick="toggle(this)">Fantasy</button>
     </div>
   </div>
 
@@ -260,9 +257,8 @@ const modifiers = {
   light:   ['Drifting','Distant','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading'],
   space:   ['Collapsed','Irradiated','Ancient','Uncharted','Orbital','Remnant','Expelled'],
   nature:  ['Overgrown','Flooded','Weathered','Slow','Rooted','Submerged','Seasonal'],
-  urban:   ['Compressed','Interrupted','Degraded','Looping','Wired','Concrete','Overnight'],
-  signal:  ['Degraded','Interrupted','Looping','Compressed','Encrypted','Carrier','Redacted'],
-  fiction: ['Unnamed','Redacted','Lost','Incomplete','Forgotten','Buried','Uncharted'],
+  city:    ['Compressed','Interrupted','Degraded','Looping','Wired','Concrete','Overnight'],
+  fantasy: ['Unnamed','Redacted','Lost','Incomplete','Forgotten','Buried','Uncharted'],
   neutral: ['Lonely','Frozen','Decaying','Distant','Hollow','Buried','Drifting','Silent','Fractured','Borrowed','Forgotten','Slow','Pale','Broken','Last']
 };
 
@@ -270,10 +266,9 @@ const nouns = {
   dark:    ['Void','Ruin','Cipher','Threshold','Static','Chamber','Debris','Hollow','Remnant','Crater'],
   light:   ['Shoreline','Horizon','Crossing','Echo','Passage','Dust','Ferry','Orbit','Bloom','Current'],
   space:   ['Planet','Crater','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant','Signal'],
-  nature:  ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shoreline'],
-  urban:   ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid'],
-  signal:  ['Broadcast','Carrier','Interference','Tape','Tone','Frequency','Static','Echo','Recording','Pulse'],
-  fiction: ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness'],
+  nature:  ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shore'],
+  city:    ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid'],
+  fantasy: ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness'],
   neutral: ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Broadcast','Carrier','Interference','Tape','Tone','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
 };
 

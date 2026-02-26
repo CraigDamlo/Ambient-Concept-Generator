@@ -14,7 +14,7 @@ Opens with a concept already loaded. Hit Generate to get another. Optionally fil
 
 **Mood** (optional): Dark · Light
 
-**Setting** (optional): Space · Nature · Urban · Signal · Fictional
+**Setting** (optional): Space · Nature · City · Fantasy
 
 Combinations work independently — Dark + Space gives you something different from Dark + Nature or just Dark alone. Previous concepts appear at the bottom as clickable chips.
 
