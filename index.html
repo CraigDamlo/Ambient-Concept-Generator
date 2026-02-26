@@ -4,20 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ambient Concept Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a08;
-    --paper: #111210;
-    --border: #2a2a24;
-    --dim: #3a3a32;
-    --mid: #6b6b58;
-    --text: #c8c8a8;
-    --bright: #e8e8c8;
-    --accent: #8fb87a;
-    --accent2: #7a9bb8;
-    --accent3: #b87a7a;
-    --warn: #b8a07a;
+    --bg: #080807;
+    --border: #1e1e1c;
+    --border-mid: #2e2e2a;
+    --dim: #383830;
+    --mid: #686858;
+    --text: #b8b898;
+    --bright: #e0e0c0;
+
+    --mood-dark:    #ab7a7a;
+    --mood-light:   #7aab8a;
+    --set-space:    #8a7aab;
+    --set-nature:   #7aab8a;
+    --set-urban:    #7a9bab;
+    --set-signal:   #ab9e7a;
+    --set-fiction:  #ab8a7a;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,289 +29,163 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'Cutive Mono', monospace;
     min-height: 100vh;
-    padding: 0;
-    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
   }
 
-  /* Scanline overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.08) 2px,
-      rgba(0,0,0,0.08) 4px
-    );
-    pointer-events: none;
-    z-index: 1000;
-  }
-
-  /* Noise texture */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.022;
     pointer-events: none;
     z-index: 999;
   }
 
-  .shell {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 48px 32px 80px;
-  }
-
-  header {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 24px;
-    margin-bottom: 40px;
-  }
-
-  .device-label {
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--mid);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  h1 {
-    font-family: 'Libre Baskerville', serif;
-    font-style: italic;
-    font-size: 28px;
-    color: var(--bright);
-    font-weight: 400;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-  }
-
-  .subtitle {
-    margin-top: 8px;
-    font-size: 11px;
-    color: var(--mid);
-    letter-spacing: 2px;
-  }
-
-  /* Category filter */
-  .filters {
+  .wrap {
+    width: 100%;
+    max-width: 620px;
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 32px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
-  .filter-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--mid);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 6px 14px;
-    cursor: pointer;
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 5px;
+    color: var(--dim);
     text-transform: uppercase;
-    transition: all 0.15s ease;
-    position: relative;
+    margin-bottom: 48px;
   }
 
-  .filter-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--accent);
+  /* Concept */
+  .concept-wrap {
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 48px;
+    width: 100%;
+  }
+
+  .concept-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(42px, 10vw, 72px);
+    color: var(--bright);
+    line-height: 1.1;
+    letter-spacing: -1px;
     opacity: 0;
-    transition: opacity 0.15s;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    word-break: break-word;
+    display: none;
   }
 
-  .filter-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .filter-btn:hover {
-    border-color: var(--text);
-    color: var(--text);
-  }
-
-  .filter-btn.cat-place.active { border-color: var(--accent); color: var(--accent); }
-  .filter-btn.cat-found.active { border-color: var(--accent2); color: var(--accent2); }
-  .filter-btn.cat-fiction.active { border-color: var(--warn); color: var(--warn); }
-  .filter-btn.cat-space.active { border-color: var(--accent3); color: var(--accent3); }
-  .filter-btn.cat-all.active { border-color: var(--bright); color: var(--bright); }
-
-  /* Generate button */
-  .generate-wrap {
-    margin-bottom: 40px;
-  }
-
-  .generate-btn {
-    background: transparent;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 3px;
-    padding: 14px 32px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .generate-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .generate-btn:hover {
-    background: var(--accent);
-    color: var(--bg);
-    box-shadow: 0 0 20px rgba(143,184,122,0.3);
-  }
-
-  .generate-btn:active {
-    transform: scale(0.98);
-  }
-
-  /* Concept card */
-  .concept-card {
-    border: 1px solid var(--border);
-    background: var(--paper);
-    padding: 36px;
-    position: relative;
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-  }
-
-  .concept-card.visible {
+  .concept-text.visible {
     opacity: 1;
     transform: translateY(0);
   }
 
-  .concept-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-
-  .concept-card.cat-place::before { background: var(--accent); }
-  .concept-card.cat-found::before { background: var(--accent2); }
-  .concept-card.cat-fiction::before { background: var(--warn); }
-  .concept-card.cat-space::before { background: var(--accent3); }
-
-  .card-type {
-    font-size: 9px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-
-  .cat-place .card-type { color: var(--accent); }
-  .cat-found .card-type { color: var(--accent2); }
-  .cat-fiction .card-type { color: var(--warn); }
-  .cat-space .card-type { color: var(--accent3); }
-
-  .concept-title {
-    font-family: 'Libre Baskerville', serif;
-    font-size: 26px;
-    color: var(--bright);
-    font-weight: 400;
+  .empty-state {
+    font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    line-height: 1.3;
-    margin-bottom: 12px;
-  }
-
-  .concept-anchor {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.7;
-    margin-bottom: 32px;
-    border-left: 2px solid var(--border);
-    padding-left: 16px;
-  }
-
-  .section-label {
-    font-size: 9px;
-    letter-spacing: 4px;
-    color: var(--dim);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .section-content {
-    font-size: 12px;
-    color: var(--mid);
-    line-height: 1.8;
-    margin-bottom: 28px;
-  }
-
-  .section-content ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  .section-content ul li::before {
-    content: '— ';
+    font-weight: 300;
+    font-size: 22px;
     color: var(--dim);
   }
 
-  .mood-arc {
+  /* Controls */
+  .controls {
+    width: 100%;
+    margin-bottom: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .control-row {
     display: flex;
     align-items: center;
-    gap: 0;
-    margin-top: 8px;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
-  .arc-step {
-    flex: 1;
-    text-align: center;
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: var(--mid);
-    padding: 8px 4px;
-    border: 1px solid var(--border);
-    border-right: none;
-    line-height: 1.4;
-  }
-
-  .arc-step:last-child {
-    border-right: 1px solid var(--border);
-  }
-
-  .arc-step .arc-label {
-    font-size: 8px;
+  .row-label {
+    font-size: 9px;
+    letter-spacing: 3px;
     color: var(--dim);
+    text-transform: uppercase;
+    width: 52px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .selector-btn {
+    background: transparent;
+    border: 1px solid var(--border-mid);
+    color: var(--mid);
+    font-family: 'Cutive Mono', monospace;
+    font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.12s ease;
   }
 
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 28px 0;
+  .selector-btn:hover {
+    color: var(--text);
+    border-color: var(--border-mid);
+    filter: brightness(1.4);
   }
+
+  /* Active states per type */
+  .selector-btn.active[data-val="dark"]    { border-color: var(--mood-dark);   color: var(--mood-dark); }
+  .selector-btn.active[data-val="light"]   { border-color: var(--mood-light);  color: var(--mood-light); }
+  .selector-btn.active[data-val="space"]   { border-color: var(--set-space);   color: var(--set-space); }
+  .selector-btn.active[data-val="nature"]  { border-color: var(--set-nature);  color: var(--set-nature); }
+  .selector-btn.active[data-val="urban"]   { border-color: var(--set-urban);   color: var(--set-urban); }
+  .selector-btn.active[data-val="signal"]  { border-color: var(--set-signal);  color: var(--set-signal); }
+  .selector-btn.active[data-val="fiction"] { border-color: var(--set-fiction); color: var(--set-fiction); }
+
+  /* Generate */
+  .generate-btn {
+    background: transparent;
+    border: 1px solid var(--border-mid);
+    color: var(--mid);
+    font-family: 'Cutive Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    padding: 16px 48px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 52px;
+  }
+
+  .generate-btn:hover {
+    border-color: var(--bright);
+    color: var(--bright);
+  }
+
+  .generate-btn:active { transform: scale(0.97); }
 
   /* History */
-  .history-section {
-    margin-top: 48px;
+  .history {
+    width: 100%;
     border-top: 1px solid var(--border);
-    padding-top: 32px;
+    padding-top: 24px;
+    display: none;
   }
 
   .history-label {
@@ -315,520 +193,199 @@
     letter-spacing: 4px;
     color: var(--dim);
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
-  .history-list {
-    list-style: none;
-  }
-
-  .history-item {
-    font-family: 'Libre Baskerville', serif;
-    font-style: italic;
-    font-size: 13px;
-    color: var(--mid);
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: color 0.15s;
+  .history-items {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
     align-items: center;
   }
 
-  .history-item:hover { color: var(--text); }
-
-  .history-cat {
-    font-family: 'Share Tech Mono', monospace;
-    font-style: normal;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+  .history-chip {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--mid);
+    cursor: pointer;
+    transition: color 0.12s;
+    padding: 2px 6px;
   }
 
-  .cat-place .history-cat { color: var(--accent); }
-  .cat-found .history-cat { color: var(--accent2); }
-  .cat-fiction .history-cat { color: var(--warn); }
-  .cat-space .history-cat { color: var(--accent3); }
-
-  .empty-state {
-    font-size: 11px;
-    color: var(--dim);
-    letter-spacing: 1px;
-  }
-
-  /* Blinking cursor */
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  .cursor {
-    display: inline-block;
-    width: 8px;
-    height: 14px;
-    background: var(--accent);
-    vertical-align: middle;
-    animation: blink 1.2s infinite;
-    margin-left: 4px;
-  }
-
-  /* Pulse on generate */
-  @keyframes pulse-border {
-    0% { box-shadow: 0 0 0 0 rgba(143,184,122,0.4); }
-    70% { box-shadow: 0 0 0 8px rgba(143,184,122,0); }
-    100% { box-shadow: 0 0 0 0 rgba(143,184,122,0); }
-  }
-
-  .pulsing {
-    animation: pulse-border 0.6s ease-out;
-  }
-
-  .counter {
-    font-size: 10px;
-    color: var(--dim);
-    letter-spacing: 2px;
-    margin-top: 8px;
-  }
+  .history-chip:hover { color: var(--text); }
+  .history-sep { color: var(--dim); font-size: 11px; }
 </style>
 </head>
 <body>
-<div class="shell">
+<div class="wrap">
 
-  <header>
-    <div class="device-label">Soap Box Rocket // Concept Engine v1.0</div>
-    <h1>Ambient Concept Generator<span class="cursor"></span></h1>
-    <div class="subtitle">Field Recordings · Found Sound · Dark Ambient · Space</div>
-  </header>
+  <div class="eyebrow">Soap Box Rocket // Concept Engine</div>
 
-  <div class="filters">
-    <button class="filter-btn cat-all active" data-cat="all" onclick="setFilter('all', this)">All</button>
-    <button class="filter-btn cat-place" data-cat="place" onclick="setFilter('place', this)">Places</button>
-    <button class="filter-btn cat-found" data-cat="found" onclick="setFilter('found', this)">Found Sound</button>
-    <button class="filter-btn cat-fiction" data-cat="fiction" onclick="setFilter('fiction', this)">Fictional</button>
-    <button class="filter-btn cat-space" data-cat="space" onclick="setFilter('space', this)">Space</button>
+  <div class="concept-wrap">
+    <div class="empty-state" id="empty"></div>
+    <div class="concept-text" id="concept-text"></div>
   </div>
 
-  <div class="generate-wrap">
-    <button class="generate-btn" onclick="generate()">// Generate Concept</button>
-    <div class="counter" id="counter"></div>
+  <div class="controls">
+    <div class="control-row">
+      <div class="row-label">Mood</div>
+      <button class="selector-btn" data-group="mood" data-val="dark"    onclick="toggle(this)">Dark</button>
+      <button class="selector-btn" data-group="mood" data-val="light"   onclick="toggle(this)">Light</button>
+    </div>
+    <div class="control-row">
+      <div class="row-label">Setting</div>
+      <button class="selector-btn" data-group="setting" data-val="space"   onclick="toggle(this)">Space</button>
+      <button class="selector-btn" data-group="setting" data-val="nature"  onclick="toggle(this)">Nature</button>
+      <button class="selector-btn" data-group="setting" data-val="urban"   onclick="toggle(this)">Urban</button>
+      <button class="selector-btn" data-group="setting" data-val="signal"  onclick="toggle(this)">Signal</button>
+      <button class="selector-btn" data-group="setting" data-val="fiction" onclick="toggle(this)">Fictional</button>
+    </div>
   </div>
 
-  <div id="card-wrap"></div>
+  <button class="generate-btn" onclick="generate()">Generate</button>
 
-  <div class="history-section" id="history-section" style="display:none">
-    <div class="history-label">// Previous Concepts</div>
-    <ul class="history-list" id="history-list"></ul>
+  <div class="history" id="history">
+    <div class="history-label">// Previous</div>
+    <div class="history-items" id="history-items"></div>
   </div>
 
 </div>
 
 <script>
-const concepts = [
+// Word pools — modifiers and nouns per mood, setting, and combos
+const modifiers = {
+  dark:    ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Incomplete','Threatening'],
+  light:   ['Drifting','Distant','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading'],
+  space:   ['Collapsed','Irradiated','Ancient','Uncharted','Orbital','Remnant','Expelled'],
+  nature:  ['Overgrown','Flooded','Weathered','Slow','Rooted','Submerged','Seasonal'],
+  urban:   ['Compressed','Interrupted','Degraded','Looping','Wired','Concrete','Overnight'],
+  signal:  ['Degraded','Interrupted','Looping','Compressed','Encrypted','Carrier','Redacted'],
+  fiction: ['Unnamed','Redacted','Lost','Incomplete','Forgotten','Buried','Uncharted'],
+  neutral: ['Lonely','Frozen','Decaying','Distant','Hollow','Buried','Drifting','Silent','Fractured','Borrowed','Forgotten','Slow','Pale','Broken','Last']
+};
 
-  // PLACES
-  {
-    cat: 'place',
-    title: 'The Overnight Ferry',
-    anchor: 'A passenger ferry crossing at 2am. Almost no one on board. The engine drone beneath your feet, the black water outside, the hum of fluorescent lights in the corridor.',
-    fieldRecordings: [
-      'Engine room vibration — low, constant, felt more than heard',
-      'Water rushing past the hull',
-      'PA system static between announcements',
-      'Wind through a cracked exterior door'
-    ],
-    arc: ['Departure / uneasy stillness', 'Open water / dissolution', 'Arrival dock / slow resolution']
-  },
-  {
-    cat: 'place',
-    title: 'Abandoned Infrastructure',
-    anchor: 'A decommissioned power substation or water treatment facility. Metal contracting in the cold. Persistent hum from equipment that may or may not still be running.',
-    fieldRecordings: [
-      'Metal resonance — tap pipes, fences, corrugated walls',
-      'Dripping water in a concrete chamber',
-      'Wind through chain-link and broken glass',
-      'Distant mechanical rumble of unknown origin'
-    ],
-    arc: ['Active past / ghost of function', 'Slow decay / nature reclaiming', 'Silence as completion']
-  },
-  {
-    cat: 'place',
-    title: 'The Hour Before the Market Opens',
-    anchor: 'Pike Place at 5am. Vendors setting up in semi-darkness. Ice being poured, crates dragged across concrete, a radio playing somewhere distant.',
-    fieldRecordings: [
-      'Ice and wet concrete',
-      'Crates dragged across stone floors',
-      'Distant radio signal — find something with static',
-      'The ambient murmur before a crowd arrives'
-    ],
-    arc: ['Empty space / potential', 'Gradual activity / layering', 'The moment it becomes something']
-  },
-  {
-    cat: 'place',
-    title: 'Fog Bank',
-    anchor: 'Inside a fog bank — either at sea, or on a hill where the city below has disappeared. Sound travels strangely. Distance is impossible to judge.',
-    fieldRecordings: [
-      'Foghorn — distant, with its own reverb tail',
-      'Dripping from surfaces condensing moisture',
-      'Muffled traffic or voices from below',
-      'Your own footsteps sounding unusually close'
-    ],
-    arc: ['Clarity / normal world', 'Submersion / world dissolves', 'Emergence / altered perception']
-  },
-  {
-    cat: 'place',
-    title: 'Underground Passage',
-    anchor: 'The Seattle underground, a subway tunnel, a basement corridor. Sound takes on strange properties. The space has memory.',
-    fieldRecordings: [
-      'Footsteps — your own, distorted by reverb',
-      'Distant train vibration through walls',
-      'Water seeping through concrete',
-      'The specific silence that has depth'
-    ],
-    arc: ['Surface noise / outside world fading', 'Deep stillness / suspended time', 'Return / disorientation']
-  },
-  {
-    cat: 'place',
-    title: 'Rain on Different Surfaces',
-    anchor: 'Not just rain — the specific sound of rain hitting a car roof versus a tarp versus standing water versus leaves. Each is a different texture.',
-    fieldRecordings: [
-      'Rain on a metal roof or car hood',
-      'Rain on still water — the hollow plops',
-      'Rain on pavement — wash and hiss',
-      'Rain at a distance through glass'
-    ],
-    arc: ['Light drizzle / texture study', 'Full rain / immersion', 'Aftermath / dripping decay']
-  },
+const nouns = {
+  dark:    ['Void','Ruin','Cipher','Threshold','Static','Chamber','Debris','Hollow','Remnant','Crater'],
+  light:   ['Shoreline','Horizon','Crossing','Echo','Passage','Dust','Ferry','Orbit','Bloom','Current'],
+  space:   ['Planet','Crater','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant','Signal'],
+  nature:  ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shoreline'],
+  urban:   ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid'],
+  signal:  ['Broadcast','Carrier','Interference','Tape','Tone','Frequency','Static','Echo','Recording','Pulse'],
+  fiction: ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness'],
+  neutral: ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Broadcast','Carrier','Interference','Tape','Tone','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
+};
 
-  // FOUND SOUND
-  {
-    cat: 'found',
-    title: 'Shortwave Band Scan',
-    anchor: 'Slowly scanning a shortwave radio across the spectrum at night. Fragments of voice, data tones, interference, silence, ghost signals. Like listening to the nervous system of the planet.',
-    fieldRecordings: [
-      'Shortwave radio scanner — use an actual receiver or WebSDR',
-      'Data bursts and digital modes (RTTY, WSPR tones)',
-      'Carrier wave hum without content',
-      'Religious or propaganda broadcasts from distant countries'
-    ],
-    arc: ['Search / scanning emptiness', 'Contact / fragments of signal', 'Loss / frequency fades']
-  },
-  {
-    cat: 'found',
-    title: 'The Dying Tape',
-    anchor: 'A cassette tape that has been played too many times. The oxide is wearing off. Voices become texture. Music becomes abstraction. Information is decaying in real time.',
-    fieldRecordings: [
-      'Record something on an old cassette, play it back degraded',
-      'The specific warble of a worn tape mechanism',
-      'Wow and flutter as speed becomes unstable',
-      'Dropout silence — random holes in the audio'
-    ],
-    arc: ['Recognizable source / identity intact', 'Degradation / meaning dissolving', 'Pure texture / source unrecognizable']
-  },
-  {
-    cat: 'found',
-    title: 'AM Radio at the Edge of Range',
-    anchor: 'An AM station heard from hundreds of miles away, only audible at night when the ionosphere reflects signals further. The station exists but also does not exist here.',
-    fieldRecordings: [
-      'AM radio with deliberate mistuning',
-      'Two stations interfering with each other',
-      'The specific crackle of AM static — denser than FM',
-      'A talk radio voice reduced to pure rhythm by distance'
-    ],
-    arc: ['Signal found / tenuous connection', 'Fading in and out / unreliable presence', 'Lost / only the static remains']
-  },
-  {
-    cat: 'found',
-    title: 'Industrial Rhythms',
-    anchor: 'Recorded sounds from machines that have unintentional rhythm — HVAC cycling, pumps, compressors. The city has a pulse it does not know about.',
-    fieldRecordings: [
-      'HVAC fan cycling on and off — find its rhythm',
-      'A compressor in a loading bay',
-      'Elevator motor — the pull and release',
-      'Construction pile driver at distance — pure metronomic impact'
-    ],
-    arc: ['Mechanical pulse / inhuman time', 'Layering / complexity emerges', 'Breakdown / rhythm fails']
-  },
-  {
-    cat: 'found',
-    title: 'The Test Tone',
-    anchor: 'A broadcast test signal, an emergency alert tone, a dial tone. Sounds that exist purely as technical artifacts but carry a strange kind of authority and loneliness.',
-    fieldRecordings: [
-      'Emergency broadcast system tone (recordings freely available)',
-      'Dial tone — sustained, 350Hz + 440Hz',
-      'Television station sign-off — the long tone before silence',
-      'Telephone hold music degraded by low bitrate compression'
-    ],
-    arc: ['Tone / clinical precision', 'Drift / tone becomes music', 'Silence / the message was nothing']
-  },
-  {
-    cat: 'found',
-    title: 'Voices Without Language',
-    anchor: 'Captured speech processed until only the prosody remains — the rise and fall of voice without words. Conversation as pure texture.',
-    fieldRecordings: [
-      'Crowd murmur at distance — voices blend into texture',
-      'Foreign language broadcast you cannot understand',
-      'A phone conversation heard through a wall',
-      'Children playing far away — the sound of social activity abstracted'
-    ],
-    arc: ['Voices / social presence', 'Abstraction / meaning dissolves', 'Texture / pure human sound']
-  },
-
-  // FICTIONAL
-  {
-    cat: 'fiction',
-    title: 'The Last Lighthouse Keeper',
-    anchor: 'A lighthouse on a remote coast, automated decades ago. The mechanism still turns. A keeper who did not receive the notice, or who chose to stay.',
-    fieldRecordings: [
-      'Rotating machinery — slow, grinding, persistent',
-      'Ocean against rocks — not peaceful, rhythmic and indifferent',
-      'Wind through a structure fighting it',
-      'Footsteps in a stone tower — isolation made acoustic'
-    ],
-    arc: ['Duty / purposeful isolation', 'Doubt / is anyone receiving the signal', 'Acceptance / the light turns regardless']
-  },
-  {
-    cat: 'fiction',
-    title: 'Soviet Research Station, Winter 1978',
-    anchor: 'A remote monitoring station in Siberia. The equipment hums. Outside: nothing for hundreds of miles. The researchers have been here too long.',
-    fieldRecordings: [
-      'Reel-to-reel tape machine running',
-      'Shortwave radio — tune to find Soviet-era number station recordings',
-      'Wind outside a structure that is holding',
-      'Morse code — find recordings, use as rhythmic texture'
-    ],
-    arc: ['Routine / ordered, purposeful', 'Isolation / routine becomes strange', 'Dissolution / the line between inside and outside']
-  },
-  {
-    cat: 'fiction',
-    title: 'The Museum After Hours',
-    anchor: 'A natural history museum at 3am. The dioramas. The bones of things that no longer exist. The climate control keeping it all preserved.',
-    fieldRecordings: [
-      'HVAC maintaining constant temperature and humidity',
-      'Footsteps on marble or stone',
-      'The specific reverb of large empty rooms',
-      'Distant traffic — the city outside, unaware'
-    ],
-    arc: ['Preservation / holding the past still', 'Presence / something in here is watching', 'Collapse / time reasserting itself']
-  },
-  {
-    cat: 'fiction',
-    title: 'Encrypted Transmission',
-    anchor: 'A message that was intercepted but never decoded. The content is unknown. It could be nothing. It could be everything. The carrier wave persists.',
-    fieldRecordings: [
-      'Data modem tones — find recordings of dial-up, RTTY',
-      'Carrier wave without signal — pure tone',
-      'Tape hiss as information-adjacent noise',
-      'Radio interference suggesting transmission without content'
-    ],
-    arc: ['Intercept / something is being said', 'Analysis / pattern without meaning', 'Acceptance / some messages are not for us']
-  },
-  {
-    cat: 'fiction',
-    title: 'The Cartographer of Unknown Territories',
-    anchor: 'Medieval maps had "here be monsters" at the edges. A person whose job is to map the unmappable — the outer edges of known territory, before the blank space begins.',
-    fieldRecordings: [
-      'Wind at altitude or in open terrain',
-      'Water — a river that may not be on any map',
-      'Silence that has texture — open space recorded',
-      'Your own pen or pencil on paper — the act of recording'
-    ],
-    arc: ['Known world / confident notation', 'Edge / territory becoming uncertain', 'Beyond / pure speculation and fear']
-  },
-  {
-    cat: 'fiction',
-    title: 'The Archive',
-    anchor: 'A vast archive of something — sounds, messages, data — where the archivist has lost track of what is actually in there. The cataloguing will never be complete.',
-    fieldRecordings: [
-      'Paper — shuffling, turning pages, the sound of records',
-      'Tape machine fast-forward — seeking something in the archive',
-      'Distant and close versions of the same sound',
-      'Door opening into a room full of something — air pressure changing'
-    ],
-    arc: ['Order / the system makes sense', 'Overwhelm / the archive exceeds the archivist', 'Surrender / some of it will never be found']
-  },
-
-  // SPACE
-  {
-    cat: 'space',
-    title: 'Voyager at the Heliopause',
-    anchor: 'Voyager 1 crossing the heliopause in 2012 — the boundary where the solar wind gives way to interstellar space. The first human-made object to enter interstellar space. It is still transmitting.',
-    fieldRecordings: [
-      'NASA has released actual Voyager plasma wave data as audio — use it',
-      'Radio telescope recordings of Jupiter or Saturn radiation',
-      'Deep space background noise converted to audio',
-      'The specific tone of a 1970s spacecraft transmitter'
-    ],
-    arc: ['Solar system / known, familiar', 'Boundary / the edge of home', 'Interstellar / uncharted, signal persisting']
-  },
-  {
-    cat: 'space',
-    title: 'The Light That Left Before We Existed',
-    anchor: 'Looking at a star 10,000 light years away means seeing light that left before humans existed. The star may no longer exist. You are watching something that happened and is over.',
-    fieldRecordings: [
-      'Pulsar data converted to audio (several are freely available)',
-      'Cosmic microwave background radiation as sound',
-      'Radio telescope static — the universe as noise floor',
-      'A very slow, very long drone — the pace of astronomical time'
-    ],
-    arc: ['Observation / looking back in time', 'Scale / the distance becomes felt', 'Humility / the star does not know we are watching']
-  },
-  {
-    cat: 'space',
-    title: 'Mars Dust Storm Season',
-    anchor: 'Mars has global dust storms that can last months, covering the entire planet. The Opportunity rover lost contact during one in 2018 and never woke up. Its last transmission was data that engineers interpreted as "my battery is low and it is getting dark."',
-    fieldRecordings: [
-      'Wind — sustained, with variation, not dramatic but relentless',
-      'Static and interference as solar power depletes',
-      'The specific tone of a dying battery in electronics',
-      'Silence with residual noise — the last transmission'
-    ],
-    arc: ['Function / systems nominal, operating', 'Storm / energy depleting, signal weakening', 'Dark / the final transmission, then nothing']
-  },
-  {
-    cat: 'space',
-    title: 'The Axial Tilt of a Distant World',
-    anchor: 'A planet with an extreme axial tilt — like Uranus, which rotates on its side — experiences seasons unlike anything on Earth. Poles face the sun for decades, then darkness for decades.',
-    fieldRecordings: [
-      'Long, slow drones at two registers — the two poles, one lit, one dark',
-      'Wind — very slow transition in character over the piece',
-      'A single sustained tone that very slowly changes pitch',
-      'Silence as the darkness pole — 40 years of night'
-    ],
-    arc: ['Summer pole / sustained brightness, uncomfortable', 'Equinox / brief transition, both poles equal', 'Winter pole / long darkness, memory of light']
-  },
-  {
-    cat: 'space',
-    title: 'Signal from the Wow! Source',
-    anchor: 'In 1977 a radio telescope received a 72-second signal from space so unusual the astronomer wrote "Wow!" next to it on the printout. It was never heard again. No explanation has been confirmed.',
-    fieldRecordings: [
-      'Shortwave radio scan — something emerging from static',
-      'A single tone at 1420 MHz (hydrogen line) — significant because it is what we listen for',
-      'The silence after the signal — 72 seconds of something, then nothing',
-      'Paper printout sounds — the act of documentation'
-    ],
-    arc: ['Background / normal listening, normal static', 'Contact / 72 seconds of something real', 'Silence / it does not repeat, we are alone again']
-  },
-  {
-    cat: 'space',
-    title: 'The Gas Giant Interior',
-    anchor: 'Jupiter has no solid surface. Descend into it and the atmosphere simply gets denser and hotter until what you are in is no longer gas but something else. There is no moment of landing.',
-    fieldRecordings: [
-      'NASA Juno spacecraft audio data — Jupiter auroral sounds, freely available',
-      'Deep, slow low-end resonance — pressure increasing',
-      'Wind as a structural force, not weather',
-      'The point where atmosphere becomes ocean becomes solid — a continuous transition'
-    ],
-    arc: ['Upper atmosphere / still gas, still recognizable', 'Descent / compression, heat, pressure', 'Interior / something that has no name']
-  }
-];
-
-let currentFilter = 'all';
+let selectedMood    = null;
+let selectedSetting = null;
 let history = [];
-let generationCount = 0;
+let lastConcept = '';
 
-function setFilter(cat, btn) {
-  currentFilter = cat;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function toggle(btn) {
+  const group = btn.dataset.group;
+  const val   = btn.dataset.val;
+
+  // Deselect others in same group
+  document.querySelectorAll(`.selector-btn[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+
+  if (group === 'mood') {
+    if (selectedMood === val) { selectedMood = null; }
+    else { selectedMood = val; btn.classList.add('active'); }
+  } else {
+    if (selectedSetting === val) { selectedSetting = null; }
+    else { selectedSetting = val; btn.classList.add('active'); }
+  }
 }
 
-function getFiltered() {
-  if (currentFilter === 'all') return concepts;
-  return concepts.filter(c => c.cat === currentFilter);
+function pick(arr, exclude) {
+  const pool = exclude ? arr.filter(x => x !== exclude) : [...arr];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function catLabel(cat) {
-  return { place: 'Place', found: 'Found Sound', fiction: 'Fictional', space: 'Space' }[cat];
+function buildPool(source, keys) {
+  // Merge pools from relevant keys, deduplicate
+  const combined = [];
+  keys.forEach(k => { if (source[k]) source[k].forEach(w => { if (!combined.includes(w)) combined.push(w); }); });
+  return combined;
 }
 
 function generate() {
-  const pool = getFiltered();
-  if (!pool.length) return;
+  const moodKey    = selectedMood    || null;
+  const settingKey = selectedSetting || null;
 
-  // avoid immediate repeat
-  let concept;
-  const recentTitles = history.slice(0, 3).map(h => h.title);
-  const fresh = pool.filter(c => !recentTitles.includes(c.title));
-  concept = fresh.length ? fresh[Math.floor(Math.random() * fresh.length)] : pool[Math.floor(Math.random() * pool.length)];
+  // Build modifier pool
+  const modKeys = ['neutral'];
+  if (moodKey)    modKeys.push(moodKey);
+  if (settingKey) modKeys.push(settingKey);
+  const modPool = buildPool(modifiers, modKeys);
 
-  generationCount++;
-  renderCard(concept);
+  // Build noun pool
+  const nounKeys = ['neutral'];
+  if (moodKey)    nounKeys.push(moodKey);
+  if (settingKey) nounKeys.push(settingKey);
 
-  // Add to history
-  history.unshift({ title: concept.title, cat: concept.cat, concept });
-  if (history.length > 12) history.pop();
-  renderHistory();
-
-  document.getElementById('counter').textContent = `// ${generationCount} concept${generationCount !== 1 ? 's' : ''} generated`;
-}
-
-function renderCard(concept) {
-  const wrap = document.getElementById('card-wrap');
-  const card = document.createElement('div');
-  card.className = `concept-card cat-${concept.cat}`;
-
-  const arcSteps = concept.arc.map(step => {
-    const parts = step.split(' / ');
-    return `<div class="arc-step"><span class="arc-label">${parts[0]}</span>${parts[1] || ''}</div>`;
-  }).join('');
-
-  card.innerHTML = `
-    <div class="card-type">// ${catLabel(concept.cat)}</div>
-    <div class="concept-title">${concept.title}</div>
-    <div class="concept-anchor">${concept.anchor}</div>
-    <hr class="divider">
-    <div class="section-label">// Field Recording Sources</div>
-    <div class="section-content">
-      <ul>${concept.fieldRecordings.map(r => `<li>${r}</li>`).join('')}</ul>
-    </div>
-    <div class="section-label">// Mood Arc</div>
-    <div class="section-content">
-      <div class="mood-arc">${arcSteps}</div>
-    </div>
-  `;
-
-  // Remove old card
-  const old = wrap.querySelector('.concept-card');
-  if (old) {
-    old.style.opacity = '0';
-    old.style.transform = 'translateY(-8px)';
-    setTimeout(() => old.remove(), 300);
+  // Weight setting nouns more heavily when a setting is chosen
+  let nounPool;
+  if (settingKey) {
+    // 60% chance to draw noun from setting pool, 40% from full pool
+    nounPool = [...nouns[settingKey], ...nouns[settingKey], ...buildPool(nouns, nounKeys)];
+  } else if (moodKey) {
+    nounPool = [...nouns[moodKey], ...nouns[moodKey], ...nouns.neutral];
+  } else {
+    nounPool = nouns.neutral;
   }
 
+  const modifier = pick(modPool, history[0]?.modifier);
+  const noun1    = pick(nounPool, history[0]?.noun1);
+
+  const useThree = Math.random() < 0.35;
+  let noun2 = null;
+  if (useThree) {
+    noun2 = pick(nounPool.filter(n => n !== noun1), history[0]?.noun2);
+  }
+
+  const concept = useThree ? `${modifier} ${noun1} ${noun2}` : `${modifier} ${noun1}`;
+  if (concept === lastConcept) { generate(); return; }
+  lastConcept = concept;
+
+  history.unshift({ text: concept, modifier, noun1, noun2 });
+  if (history.length > 10) history.pop();
+
+  showConcept(concept);
+  renderHistory();
+}
+
+function showConcept(concept) {
+  const textEl  = document.getElementById('concept-text');
+  const emptyEl = document.getElementById('empty');
+
+  textEl.classList.remove('visible');
+
   setTimeout(() => {
-    wrap.appendChild(card);
-    requestAnimationFrame(() => card.classList.add('visible'));
-    card.classList.add('pulsing');
-  }, old ? 200 : 0);
+    emptyEl.style.display = 'none';
+    textEl.style.display  = 'block';
+    textEl.textContent    = concept;
+    requestAnimationFrame(() => textEl.classList.add('visible'));
+  }, 150);
 }
 
 function renderHistory() {
-  const section = document.getElementById('history-section');
-  const list = document.getElementById('history-list');
-
-  if (history.length <= 1) {
-    section.style.display = 'none';
-    return;
-  }
-
-  section.style.display = 'block';
-  list.innerHTML = history.slice(1).map((h, i) => `
-    <li class="history-item cat-${h.cat}" onclick="recallConcept(${i + 1})">
-      <span>${h.title}</span>
-      <span class="history-cat">${catLabel(h.cat)}</span>
-    </li>
-  `).join('');
+  const wrap  = document.getElementById('history');
+  const items = document.getElementById('history-items');
+  if (history.length <= 1) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  items.innerHTML = history.slice(1).map((h, i) =>
+    `<span class="history-chip" onclick="recallHistory(${i+1})">${h.text}</span>
+     <span class="history-sep">·</span>`
+  ).join('');
 }
 
-function recallConcept(index) {
-  renderCard(history[index].concept);
+function recallHistory(i) {
+  showConcept(history[i].text);
 }
 
-// Generate one on load
-window.addEventListener('load', () => {
-  setTimeout(generate, 400);
-});
+window.addEventListener('load', () => setTimeout(generate, 300));
 </script>
 </body>
 </html>
