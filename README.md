@@ -2,7 +2,7 @@
 
 A browser-based inspiration tool for ambient musicians working with field recordings and found sound. Generates concepts with a core anchor, specific field recording sources, and a three-stage mood arc.
 
-**[→ Open the Tool](https://YOUR-USERNAME.github.io/ambient-concept-generator/)**
+**[→ Open the Tool](https://craigdamlo.github.io/Ambient-Concept-Generator/)**
 
 ![Ambient Concept Generator screenshot](screenshot.png)
 
@@ -32,8 +32,8 @@ Filter by category or generate across all of them. The tool keeps a history so y
 No build step, no dependencies, no install required.
 
 ```
-git clone https://github.com/YOUR-USERNAME/ambient-concept-generator.git
-cd ambient-concept-generator
+git clone https://github.com/CraigDamlo/Ambient-Concept-Generator.git
+cd Ambient-Concept-Generator
 open index.html
 ```
 
