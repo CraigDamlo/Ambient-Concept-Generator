@@ -495,7 +495,7 @@ function renderHistory() {
   wrap.style.display = 'block';
   items.innerHTML = history.slice(1).map((h, i) => {
     const noun = h.noun2 ? `${h.noun} ${h.noun2}` : h.noun;
-    return `<span class="history-chip" onclick="recallHistory(${i+1})">${h.lightMod} · ${noun} · ${h.darkMod}</span>
+    return `<span class="history-chip" onclick="recallHistory(${i+1})">${h.lightMod} / ${h.darkMod} · ${noun}</span>
      <span class="history-sep">—</span>`;
   }).join('');
 }
