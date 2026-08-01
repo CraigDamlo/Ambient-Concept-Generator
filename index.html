@@ -4,407 +4,398 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ambient Concept Generator</title>
+<meta name="description" content="A browser-based inspiration tool for ambient musicians. Combines modifiers and nouns to generate concept starting points for new pieces, shown as a light and dark take on a shared anchor word.">
+<meta property="og:title" content="Ambient Concept Generator">
+<meta property="og:description" content="A browser-based inspiration tool for ambient musicians. Generate a light/dark concept pair to anchor a new piece.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://craigdamlo.github.io/Ambient-Concept-Generator/">
+<meta property="og:image" content="https://raw.githubusercontent.com/CraigDamlo/Ambient-Concept-Generator/main/screenshot.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ambient Concept Generator">
+<meta name="twitter:description" content="A browser-based inspiration tool for ambient musicians. Generate a light/dark concept pair to anchor a new piece.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23080807'/%3E%3Ccircle cx='30' cy='30' r='7' fill='%23d0ddb0'/%3E%3Ccircle cx='72' cy='50' r='9' fill='%23d4c490'/%3E%3Ccircle cx='30' cy='72' r='7' fill='%23c0b0a0'/%3E%3Cline x1='30' y1='30' x2='72' y2='50' stroke='%233a3a30' stroke-width='3'/%3E%3Cline x1='30' y1='72' x2='72' y2='50' stroke='%233a3a30' stroke-width='3'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:        #080807;
-    --border:    #2a2a26;
-    --border-mid:#606050;
-    --dim:       #a0a088;
-    --mid:       #c8c8a8;
-    --text:      #deded8;
-    --bright:    #f0f0e0;
-    --line:      #3a3a30;
-
-    --light-text:   #d0ddb0;
-    --light-label:  #a0c080;
-    --light-lock:   #90b070;
-
-    --dark-text:    #c0b0a0;
-    --dark-label:   #b0a090;
-    --dark-lock:    #a09080;
-
-    --noun-text:    #d4c490;
-    --noun-label:   #b0a080;
-
-    --set-space:      #9a8abb;
-    --set-nature:     #8abb9a;
-    --set-city:       #8aabbb;
-    --set-industrial: #bbae8a;
-    --set-archive:    #abbb8a;
-    --set-fantasy:    #bb9a8a;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Cutive Mono', monospace;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 24px 80px;
-  }
-
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity: 0.022;
-    pointer-events: none;
-    z-index: 999;
-  }
-
-  .wrap {
-    width: 100%;
-    max-width: 600px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .eyebrow {
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: var(--dim);
-    text-transform: uppercase;
-    margin-bottom: 56px;
-    align-self: flex-start;
-  }
-
-  /* ── DIAGRAM ── */
-  .diagram {
-    width: 100%;
-    position: relative;
-    margin-bottom: 52px;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-
-  .diagram.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* SVG lines layer — sits behind the words */
-  .lines-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: visible;
-  }
-
-  .lines-svg line {
-    stroke: var(--line);
-    stroke-width: 1;
-  }
-
-  /* Three rows: light, noun, dark */
-  .row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 12px 0;
-  }
-
-  .row-light  { justify-content: flex-start; padding-left: 0; }
-  .row-noun   { justify-content: flex-end; padding: 20px 0; }
-  .row-dark   { justify-content: flex-start; padding-left: 0; }
-
-  /* Word + lock grouped */
-  .word-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .word-label {
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .light-group .word-label { color: var(--light-label); }
-  .noun-group  .word-label { color: var(--noun-label); text-align: center; }
-  .dark-group  .word-label { color: var(--dark-label); }
-
-  .word-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    line-height: 1;
-    transition: opacity 0.3s ease;
-  }
-
-  .light-group .word-text {
-    font-style: italic;
-    font-size: clamp(30px, 7vw, 48px);
-    color: var(--light-text);
-    letter-spacing: -0.5px;
-  }
-
-  .noun-group .word-text {
-    font-style: normal;
-    font-size: clamp(36px, 9vw, 60px);
-    color: var(--noun-text);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-weight: 400;
-    text-align: right;
-  }
-
-  .dark-group .word-text {
-    font-style: normal;
-    font-size: clamp(30px, 7vw, 48px);
-    color: var(--dark-text);
-    letter-spacing: 2px;
-  }
-
-  /* Lock button */
-  .lock-btn {
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    opacity: 0.45;
-    transition: opacity 0.15s ease;
-    padding: 4px;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-
-  .lock-btn:hover  { opacity: 0.8; }
-  .lock-btn.locked { opacity: 1; }
-
-  .copy-btn {
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    opacity: 0.25;
-    transition: opacity 0.15s ease, color 0.15s ease;
-    padding: 4px;
-    line-height: 1;
-    flex-shrink: 0;
-    color: var(--text);
-  }
-
-  .copy-btn:hover  { opacity: 0.7; }
-  .copy-btn.copied { opacity: 1; color: var(--bright); }
-
-  /* ── SETTINGS ── */
-  .settings-wrap {
-    width: 100%;
-    margin-bottom: 32px;
-  }
-
-  .control-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .row-label {
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--dim);
-    text-transform: uppercase;
-    width: auto;
-    white-space: nowrap;
-    text-align: right;
-    flex-shrink: 0;
-    padding-right: 8px;
-  }
-
-  .selector-btn {
-    background: transparent;
-    border: 1px solid var(--border-mid);
-    color: var(--mid);
-    font-family: 'Cutive Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 8px 16px;
-    cursor: pointer;
-    transition: all 0.12s ease;
-  }
-
-  .selector-btn:hover { color: var(--text); border-color: var(--text); }
-
-  .selector-btn.active[data-val="space"]      { border-color: var(--set-space);      color: var(--set-space); }
-  .selector-btn.active[data-val="nature"]     { border-color: var(--set-nature);     color: var(--set-nature); }
-  .selector-btn.active[data-val="city"]       { border-color: var(--set-city);       color: var(--set-city); }
-  .selector-btn.active[data-val="industrial"] { border-color: var(--set-industrial); color: var(--set-industrial); }
-  .selector-btn.active[data-val="archive"]    { border-color: var(--set-archive);    color: var(--set-archive); }
-  .selector-btn.active[data-val="fantasy"]    { border-color: var(--set-fantasy);    color: var(--set-fantasy); }
-
-  /* Generate */
-  .generate-btn {
-    background: transparent;
-    border: 1px solid var(--border-mid);
-    color: var(--mid);
-    font-family: 'Cutive Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    padding: 14px 44px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-bottom: 16px;
-  }
-
-  .generate-btn:hover { border-color: var(--bright); color: var(--bright); }
-  .generate-btn:active { transform: scale(0.97); }
-
-  .lock-hint {
-    font-size: 11px;
-    color: var(--dim);
-    letter-spacing: 1px;
-    margin-bottom: 52px;
-    text-align: center;
-  }
-
-  /* History */
-  .history {
-    width: 100%;
-    border-top: 1px solid var(--border);
-    padding-top: 24px;
-    display: none;
-  }
-
-  .history-label {
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: var(--dim);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    text-align: center;
-  }
-
-  .history-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .history-chip {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 16px;
-    color: var(--mid);
-    cursor: pointer;
-    transition: color 0.12s;
-    padding: 2px 6px;
-  }
-
-  .history-chip:hover { color: var(--text); }
-  .history-sep { color: var(--dim); font-size: 12px; }
+:root {
+  --bg: #080807;
+  --border: #2a2a26;
+  --border-mid:#606050;
+  --dim: #a0a088;
+  --mid: #c8c8a8;
+  --text: #deded8;
+  --bright: #f0f0e0;
+  --line: #3a3a30;
+  --light-text: #d0ddb0;
+  --light-label: #a0c080;
+  --light-lock: #90b070;
+  --dark-text: #c0b0a0;
+  --dark-label: #b0a090;
+  --dark-lock: #a09080;
+  --noun-text: #d4c490;
+  --noun-label: #b0a080;
+  --set-space: #9a8abb;
+  --set-nature: #8abb9a;
+  --set-city: #8aabbb;
+  --set-industrial: #bbae8a;
+  --set-archive: #abbb8a;
+  --set-fantasy: #bb9a8a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cutive Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px 80px;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  pointer-events: none;
+  z-index: 999;
+}
+.wrap {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 56px;
+  align-self: flex-start;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.noscript-msg {
+  max-width: 600px;
+  text-align: center;
+  color: var(--mid);
+  font-family: 'Cutive Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding: 24px;
+  border: 1px solid var(--border-mid);
+  margin-top: 48px;
+}
+/* ── DIAGRAM ── */
+.diagram {
+  width: 100%;
+  position: relative;
+  margin-bottom: 52px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.diagram.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* SVG lines layer — sits behind the words */
+.lines-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+.lines-svg line {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+/* Three rows: light, noun, dark */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 12px 0;
+}
+.row-light { justify-content: flex-start; padding-left: 0; }
+.row-noun { justify-content: flex-end; padding: 20px 0; }
+.row-dark { justify-content: flex-start; padding-left: 0; }
+/* Word + lock grouped */
+.word-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.word-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.light-group .word-label { color: var(--light-label); }
+.noun-group .word-label { color: var(--noun-label); text-align: center; }
+.dark-group .word-label { color: var(--dark-label); }
+.word-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  line-height: 1;
+  transition: opacity 0.3s ease;
+}
+.light-group .word-text {
+  font-style: italic;
+  font-size: clamp(30px, 7vw, 48px);
+  color: var(--light-text);
+  letter-spacing: -0.5px;
+}
+.noun-group .word-text {
+  font-style: normal;
+  font-size: clamp(36px, 9vw, 60px);
+  color: var(--noun-text);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 400;
+  text-align: right;
+}
+.dark-group .word-text {
+  font-style: normal;
+  font-size: clamp(30px, 7vw, 48px);
+  color: var(--dark-text);
+  letter-spacing: 2px;
+}
+/* Lock button */
+.lock-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+  padding: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.lock-btn:hover { opacity: 0.8; }
+.lock-btn.locked { opacity: 1; }
+.copy-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  padding: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  color: var(--text);
+}
+.copy-btn:hover { opacity: 0.7; }
+.copy-btn.copied { opacity: 1; color: var(--bright); }
+.copy-btn.copy-failed { opacity: 1; color: #c08080; }
+/* ── SETTINGS ── */
+.settings-wrap {
+  width: 100%;
+  margin-bottom: 32px;
+}
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.row-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  width: auto;
+  white-space: nowrap;
+  text-align: right;
+  flex-shrink: 0;
+  padding-right: 8px;
+}
+.selector-btn {
+  background: transparent;
+  border: 1px solid var(--border-mid);
+  color: var(--mid);
+  font-family: 'Cutive Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.selector-btn:hover { color: var(--text); border-color: var(--text); }
+.selector-btn.active[data-val="space"] { border-color: var(--set-space); color: var(--set-space); }
+.selector-btn.active[data-val="nature"] { border-color: var(--set-nature); color: var(--set-nature); }
+.selector-btn.active[data-val="city"] { border-color: var(--set-city); color: var(--set-city); }
+.selector-btn.active[data-val="industrial"] { border-color: var(--set-industrial); color: var(--set-industrial); }
+.selector-btn.active[data-val="archive"] { border-color: var(--set-archive); color: var(--set-archive); }
+.selector-btn.active[data-val="fantasy"] { border-color: var(--set-fantasy); color: var(--set-fantasy); }
+/* Generate */
+.generate-btn {
+  background: transparent;
+  border: 1px solid var(--border-mid);
+  color: var(--mid);
+  font-family: 'Cutive Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  padding: 14px 44px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+.generate-btn:hover { border-color: var(--bright); color: var(--bright); }
+.generate-btn:active { transform: scale(0.97); }
+.lock-hint {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  margin-bottom: 52px;
+  text-align: center;
+}
+/* History */
+.history {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  display: none;
+}
+.history-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.history-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+.history-chip {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--mid);
+  cursor: pointer;
+  transition: color 0.12s;
+  padding: 2px 6px;
+}
+.history-chip:hover { color: var(--text); }
+.history-sep { color: var(--dim); font-size: 12px; }
 </style>
 </head>
 <body>
+<noscript>
+  <div class="noscript-msg">This tool needs JavaScript enabled to generate concepts. Please turn it on and reload the page.</div>
+</noscript>
 <div class="wrap">
-
   <div class="eyebrow">Soap Box Rocket // Concept Engine</div>
 
   <!-- Diagram -->
-  <div class="diagram" id="diagram">
-
+  <div class="diagram" id="diagram" aria-live="polite">
+    <span class="visually-hidden" id="status-text"></span>
     <svg class="lines-svg" id="lines-svg"><line id="line-light"/><line id="line-dark"/></svg>
-
     <div class="row row-light" id="row-light">
       <div class="word-group light-group" id="group-light">
-        <button class="lock-btn" id="lock-light-mod" onclick="toggleLock('light-mod')" title="Hold this word">🔓</button>
+        <button class="lock-btn" id="lock-light-mod" onclick="toggleLock('light-mod')" aria-label="Hold the light word" title="Hold this word">🔓</button>
         <div>
           <div class="word-label">Light</div>
           <div class="word-text" id="word-light"></div>
         </div>
-        <button class="copy-btn" id="copy-light" onclick="copyPhrase('light')" title="Copy phrase">⧉</button>
+        <button class="copy-btn" id="copy-light" onclick="copyPhrase('light')" aria-label="Copy light phrase" title="Copy phrase">⧉</button>
       </div>
     </div>
-
     <div class="row row-noun" id="row-noun">
       <div class="word-group noun-group" id="group-noun">
-        <button class="lock-btn" style="visibility:hidden">🔓</button>
+        <button class="lock-btn" style="visibility:hidden" aria-hidden="true" tabindex="-1">🔓</button>
         <div>
           <div class="word-text" id="word-noun"></div>
         </div>
-        <button class="lock-btn" id="lock-noun" onclick="toggleLock('noun')" title="Hold this word">🔓</button>
+        <button class="lock-btn" id="lock-noun" onclick="toggleLock('noun')" aria-label="Hold the noun" title="Hold this word">🔓</button>
       </div>
     </div>
-
     <div class="row row-dark" id="row-dark">
       <div class="word-group dark-group" id="group-dark">
-        <button class="lock-btn" id="lock-dark-mod" onclick="toggleLock('dark-mod')" title="Hold this word">🔓</button>
+        <button class="lock-btn" id="lock-dark-mod" onclick="toggleLock('dark-mod')" aria-label="Hold the dark word" title="Hold this word">🔓</button>
         <div>
           <div class="word-text" id="word-dark"></div>
           <div class="word-label">Dark</div>
         </div>
-        <button class="copy-btn" id="copy-dark" onclick="copyPhrase('dark')" title="Copy phrase">⧉</button>
+        <button class="copy-btn" id="copy-dark" onclick="copyPhrase('dark')" aria-label="Copy dark phrase" title="Copy phrase">⧉</button>
       </div>
     </div>
-
   </div>
 
   <!-- Settings -->
   <div class="settings-wrap">
     <div class="control-row">
       <div class="row-label">Setting</div>
-      <button class="selector-btn" data-group="setting" data-val="space"      onclick="toggleSetting(this)">Space</button>
-      <button class="selector-btn" data-group="setting" data-val="nature"     onclick="toggleSetting(this)">Nature</button>
-      <button class="selector-btn" data-group="setting" data-val="city"       onclick="toggleSetting(this)">City</button>
+      <button class="selector-btn" data-group="setting" data-val="space" onclick="toggleSetting(this)">Space</button>
+      <button class="selector-btn" data-group="setting" data-val="nature" onclick="toggleSetting(this)">Nature</button>
+      <button class="selector-btn" data-group="setting" data-val="city" onclick="toggleSetting(this)">City</button>
       <button class="selector-btn" data-group="setting" data-val="industrial" onclick="toggleSetting(this)">Industrial</button>
-      <button class="selector-btn" data-group="setting" data-val="archive"    onclick="toggleSetting(this)">Archive</button>
-      <button class="selector-btn" data-group="setting" data-val="fantasy"    onclick="toggleSetting(this)">Fantasy</button>
+      <button class="selector-btn" data-group="setting" data-val="archive" onclick="toggleSetting(this)">Archive</button>
+      <button class="selector-btn" data-group="setting" data-val="fantasy" onclick="toggleSetting(this)">Fantasy</button>
     </div>
   </div>
 
   <button class="generate-btn" onclick="generate()">Generate</button>
-  <div class="lock-hint">🔓 tap a lock to hold a word — changing setting unlocks all</div>
+  <div class="lock-hint">🔓 tap a lock to hold a word — changing setting unlocks all · address bar link is shareable</div>
 
   <div class="history" id="history">
     <div class="history-label">// Previous</div>
     <div class="history-items" id="history-items"></div>
   </div>
-
 </div>
 
 <script>
 const modifiers = {
-  light:      ['Drifting','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading','Lonely','Wandering','Quiet','Tender','Muted','Scattered','Fleeting','Adrift','Translucent','Unhurried','Suspended','Amber','Unfolding','Woven'],
-  dark:       ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Threatening','Incomplete','Distant','Severed','Submerged','Corroded','Erased','Consuming','Absent','Forsaken','Scarred','Unresolved'],
-  space:      ['Ancient','Uncharted','Orbital','Expelled','Irradiated','Collapsed'],
-  nature:     ['Overgrown','Flooded','Weathered','Rooted','Submerged','Seasonal'],
-  city:       ['Compressed','Interrupted','Degraded','Looping','Wired','Overnight'],
+  light: ['Drifting','Borrowed','Slow','Pale','Overgrown','Flooded','Weathered','Lost','Soft','Open','Fading','Lonely','Wandering','Quiet','Tender','Muted','Scattered','Fleeting','Adrift','Translucent','Unhurried','Suspended','Amber','Unfolding','Woven'],
+  dark: ['Hollow','Buried','Fractured','Broken','Decaying','Frozen','Silent','Last','Forgotten','Collapsed','Irradiated','Redacted','Locked','Threatening','Incomplete','Distant','Severed','Submerged','Corroded','Erased','Consuming','Absent','Forsaken','Scarred','Unresolved'],
+  space: ['Ancient','Uncharted','Orbital','Expelled','Irradiated','Collapsed'],
+  nature: ['Overgrown','Flooded','Weathered','Rooted','Submerged','Seasonal'],
+  city: ['Compressed','Interrupted','Degraded','Looping','Wired','Overnight'],
   industrial: ['Corroded','Pressurized','Grinding','Dormant','Decommissioned','Leaking'],
-  archive:    ['Classified','Encrypted','Redacted','Deteriorating','Preserved','Incomplete'],
-  fantasy:    ['Unnamed','Cursed','Uncharted','Buried','Forsaken','Bound']
+  archive: ['Classified','Encrypted','Redacted','Deteriorating','Preserved','Incomplete'],
+  fantasy: ['Unnamed','Cursed','Uncharted','Buried','Forsaken','Bound']
 };
 
 const nouns = {
-  space:      ['Planet','Crater','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant','Signal','Pulsar','Nebula','Satellite','Atmosphere','Ejection','Flare','Magnetar','Perihelion','Corona','Fissure','Cascade','Plume','Interval','Threshold','Drift'],
-  nature:     ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shore','Marsh','Tide','Fog','Glacier','Watershed','Fen','Understory','Tributary','Dune','Spore','Ravine','Tundra','Moraine','Drift','Undertow'],
-  city:       ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid','Underpass','Alley','Scaffold','Junction','Rooftop','Conduit','Platform','Tunnel','Facade','Interchange','Signal','Drain','Lobby','Substation','Aerial'],
+  space: ['Planet','Crater','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant','Signal','Pulsar','Nebula','Satellite','Atmosphere','Ejection','Flare','Magnetar','Perihelion','Corona','Fissure','Cascade','Plume','Interval','Threshold','Drift'],
+  nature: ['Shoreline','Crossing','Current','Bloom','Canopy','Estuary','Ridge','Hollow','Sediment','Shore','Marsh','Tide','Fog','Glacier','Watershed','Fen','Understory','Tributary','Dune','Spore','Ravine','Tundra','Moraine','Drift','Undertow'],
+  city: ['Corridor','Station','Archive','Broadcast','Frequency','Pulse','Tower','Overpass','Terminal','Grid','Underpass','Alley','Scaffold','Junction','Rooftop','Conduit','Platform','Tunnel','Facade','Interchange','Signal','Drain','Lobby','Substation','Aerial'],
   industrial: ['Turbine','Pipeline','Compressor','Furnace','Silo','Substation','Foundry','Valve','Chamber','Generator','Exhaust','Conveyor','Piston','Shaft','Coolant','Boiler','Conduit','Relay','Crane','Flare','Hopper','Drum','Gantry','Manifold','Slag'],
-  archive:    ['Dispatch','Chronicle','Relic','Operator','Tape','Record','Cipher','Dossier','Transmission','Broadcast','Ledger','Transcript','Manifest','Specimen','Folio','Memorandum','Catalogue','Fragment','Negative','Reel','Index','Logbook','Artifact','Cartridge','Wax'],
-  fantasy:    ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness','Threshold','Wanderer','Oracle','Remnant','Tome','Sigil','Sanctum','Emissary','Veil','Harbinger','Exile','Ruin','Shroud','Wayfarer','Effigy'],
-  neutral:    ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Tape','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
+  archive: ['Dispatch','Chronicle','Relic','Operator','Tape','Record','Cipher','Dossier','Transmission','Broadcast','Ledger','Transcript','Manifest','Specimen','Folio','Memorandum','Catalogue','Fragment','Negative','Reel','Index','Logbook','Artifact','Cartridge','Wax'],
+  fantasy: ['Cartographer','Cipher','Keeper','Dispatch','Expedition','Relic','Passage','Chronicle','Operator','Witness','Threshold','Wanderer','Oracle','Remnant','Tome','Sigil','Sanctum','Emissary','Veil','Harbinger','Exile','Ruin','Shroud','Wayfarer','Effigy'],
+  neutral: ['Ferry','Archive','Corridor','Station','Shoreline','Tower','Threshold','Chamber','Crossing','Ruin','Tape','Frequency','Static','Echo','Planet','Crater','Signal','Void','Debris','Orbit','Dust','Transmission','Horizon','Remnant']
 };
 
-let state   = { lightMod: '', noun: '', noun2: '', darkMod: '' };
-let locked  = { 'light-mod': false, 'noun': false, 'dark-mod': false };
+let state = { lightMod: '', noun: '', noun2: '', darkMod: '' };
+let locked = { 'light-mod': false, 'noun': false, 'dark-mod': false };
 let selectedSetting = null;
 let history = [];
+let resizeTimer = null;
 
 function pick(arr, exclude) {
   const pool = exclude ? arr.filter(x => x !== exclude) : [...arr];
@@ -433,16 +424,18 @@ function generate() {
   if (!locked['light-mod']) state.lightMod = pick(getModPool('light'), state.lightMod);
   if (!locked['noun']) {
     const pool = getNounPool();
-    state.noun  = pick(pool, state.noun);
+    state.noun = pick(pool, state.noun);
     state.noun2 = Math.random() < 0.35 ? pick(pool.filter(n => n !== state.noun), state.noun2) : '';
   }
-  if (!locked['dark-mod'])  state.darkMod  = pick(getModPool('dark'), state.darkMod);
+  if (!locked['dark-mod']) state.darkMod = pick(getModPool('dark'), state.darkMod);
 
   history.unshift({ ...state });
   if (history.length > 10) history.pop();
 
   render();
   renderHistory();
+  updateURL();
+  announce();
 }
 
 function copyPhrase(which) {
@@ -450,11 +443,29 @@ function copyPhrase(which) {
   const text = which === 'light'
     ? `${state.lightMod} ${noun}`
     : `${state.darkMod} ${noun}`;
+
+  const btn = document.getElementById(`copy-${which}`);
+
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById(`copy-${which}`);
     btn.textContent = '✓';
+    btn.classList.remove('copy-failed');
     btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1500);
+    btn.setAttribute('aria-label', `Copied ${which} phrase`);
+    setTimeout(() => {
+      btn.textContent = '⧉';
+      btn.classList.remove('copied');
+      btn.setAttribute('aria-label', `Copy ${which} phrase`);
+    }, 1500);
+  }).catch(() => {
+    // Clipboard permission denied or unavailable (e.g. insecure context, no focus).
+    btn.textContent = '⚠';
+    btn.classList.add('copy-failed');
+    btn.setAttribute('aria-label', `Could not copy ${which} phrase — copy manually: ${text}`);
+    setTimeout(() => {
+      btn.textContent = '⧉';
+      btn.classList.remove('copy-failed');
+      btn.setAttribute('aria-label', `Copy ${which} phrase`);
+    }, 2500);
   });
 }
 
@@ -463,6 +474,7 @@ function toggleLock(key) {
   const btn = document.getElementById(`lock-${key}`);
   btn.textContent = locked[key] ? '🔒' : '🔓';
   btn.title = locked[key] ? 'Release this word' : 'Hold this word';
+  btn.setAttribute('aria-label', locked[key] ? 'Release this word' : 'Hold this word');
   btn.classList.toggle('locked', locked[key]);
 }
 
@@ -471,11 +483,16 @@ function toggleSetting(btn) {
   document.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
   selectedSetting = (selectedSetting === val) ? null : val;
   if (selectedSetting) btn.classList.add('active');
+
   // Unlock all
   Object.keys(locked).forEach(k => {
     locked[k] = false;
     const lb = document.getElementById(`lock-${k}`);
-    if (lb) { lb.textContent = '🔓'; lb.classList.remove('locked'); }
+    if (lb) {
+      lb.textContent = '🔓';
+      lb.classList.remove('locked');
+      lb.setAttribute('aria-label', 'Hold this word');
+    }
   });
 }
 
@@ -483,7 +500,7 @@ function render() {
   document.getElementById('word-light').textContent = state.lightMod;
   const nounEl = document.getElementById('word-noun');
   nounEl.textContent = state.noun2 ? `${state.noun} ${state.noun2}` : state.noun;
-  document.getElementById('word-dark').textContent  = state.darkMod;
+  document.getElementById('word-dark').textContent = state.darkMod;
 
   const diagram = document.getElementById('diagram');
   if (!diagram.classList.contains('visible')) diagram.classList.add('visible');
@@ -491,19 +508,24 @@ function render() {
   requestAnimationFrame(() => requestAnimationFrame(drawLines));
 }
 
-function drawLines() {
-  const svg       = document.getElementById('lines-svg');
-  const diagRect  = document.getElementById('diagram').getBoundingClientRect();
+function announce() {
+  const noun = state.noun2 ? `${state.noun} ${state.noun2}` : state.noun;
+  const statusEl = document.getElementById('status-text');
+  if (statusEl) statusEl.textContent = `New concept: ${state.lightMod} ${noun}, or ${state.darkMod} ${noun}`;
+}
 
-  const lightEl   = document.getElementById('word-light');
-  const nounEl    = document.getElementById('word-noun');
-  const darkEl    = document.getElementById('word-dark');
+function drawLines() {
+  const svg = document.getElementById('lines-svg');
+  const diagRect = document.getElementById('diagram').getBoundingClientRect();
+  const lightEl = document.getElementById('word-light');
+  const nounEl = document.getElementById('word-noun');
+  const darkEl = document.getElementById('word-dark');
 
   function center(el) {
     const r = el.getBoundingClientRect();
     return {
-      x: r.left + r.width  / 2 - diagRect.left,
-      y: r.top  + r.height / 2 - diagRect.top
+      x: r.left + r.width / 2 - diagRect.left,
+      y: r.top + r.height / 2 - diagRect.top
     };
   }
 
@@ -521,24 +543,69 @@ function drawLines() {
 }
 
 function renderHistory() {
-  const wrap  = document.getElementById('history');
+  const wrap = document.getElementById('history');
   const items = document.getElementById('history-items');
   if (history.length <= 1) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   items.innerHTML = history.slice(1).map((h, i) => {
     const noun = h.noun2 ? `${h.noun} ${h.noun2}` : h.noun;
     return `<span class="history-chip" onclick="recallHistory(${i+1})">${h.lightMod} / ${h.darkMod} · ${noun}</span>
-     <span class="history-sep">—</span>`;
+      <span class="history-sep">—</span>`;
   }).join('');
 }
 
 function recallHistory(i) {
   state = { ...history[i] };
   render();
+  updateURL();
+  announce();
 }
 
-window.addEventListener('load',   () => setTimeout(generate, 300));
-window.addEventListener('resize', drawLines);
+// ── Shareable URL state ──
+function updateURL() {
+  const params = new URLSearchParams();
+  params.set('l', state.lightMod);
+  params.set('d', state.darkMod);
+  params.set('n', state.noun);
+  if (state.noun2) params.set('n2', state.noun2);
+  if (selectedSetting) params.set('set', selectedSetting);
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState(null, '', newUrl);
+}
+
+function loadFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('l') || !params.has('d') || !params.has('n')) return false;
+
+  state.lightMod = params.get('l') || '';
+  state.darkMod = params.get('d') || '';
+  state.noun = params.get('n') || '';
+  state.noun2 = params.get('n2') || '';
+
+  const set = params.get('set');
+  if (set && nouns[set]) {
+    selectedSetting = set;
+    const btn = document.querySelector(`.selector-btn[data-val="${set}"]`);
+    if (btn) btn.classList.add('active');
+  }
+
+  history.unshift({ ...state });
+  render();
+  renderHistory();
+  return true;
+}
+
+window.addEventListener('load', () => {
+  const loadedFromShare = loadFromURL();
+  setTimeout(() => {
+    if (!loadedFromShare) generate();
+  }, 300);
+});
+
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawLines, 100);
+});
 </script>
 </body>
 </html>
